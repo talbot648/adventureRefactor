@@ -1,7 +1,7 @@
 package main
 
 import (
-
+	"fmt"
 )
 
 type Room struct {
@@ -19,6 +19,8 @@ type Player struct {
 func (p *Player) Move(direction string) {
 	if newRoom, ok := p.CurrentRoom.Exits[direction]; ok {
 		p.CurrentRoom = newRoom
+	} else {
+		fmt.Println("You can't go that way!")
 	}
 }
 
