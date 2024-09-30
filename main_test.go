@@ -85,7 +85,7 @@ func TestPickUpAbsentItem(t *testing.T) {
 	}
 }
 
-func TestPickUpUnexistentItem(t *testing.T) {
+func TestPickUpNonexistentItem(t *testing.T) {
 	//Arrange
 	room2 := Room{Items: make(map[string]*Item)}
 
@@ -97,6 +97,6 @@ func TestPickUpUnexistentItem(t *testing.T) {
 
 	//Assert
 	if _, ok := player.Inventory["Item"]; ok {
-		t.Errorf("Expected false for picking up unexistent item, got true")
+		t.Errorf("Expected false for picking up nonexistent item, got true")
 	}
 }
