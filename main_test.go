@@ -39,3 +39,27 @@ func TestPlayerMovementInvalidDirection(t *testing.T) {
 		t.Errorf("Expected Room1, got %s", player.CurrentRoom.Name)
 	}
 }
+
+func TestPickUpItem(t *testing.T) {
+	//Arrange
+	room := Room{Name: "Room", Description: "This is room", Exits: make(map[string]*Room), Items: make(map[string]*Item)}
+	
+	item := Item{Name: "Item", Description: "This is an item"}
+
+	room.Items[item.Name] = &item
+	
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	
+	//Act
+	player.Take(item.Name)
+
+
+	//Assert
+	if _, ok := player.Inventory[item.Name]; !ok {
+		t.Errorf("Expected true for item present in the inventory, got false")
+	}
+	
+	if _, ok := room.Items[item.Name]; ok {
+		t.Errorf("Expected false for item missing from the room, got true")
+	}
+}

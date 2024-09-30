@@ -4,16 +4,21 @@ import (
 	"fmt"
 )
 
+type Item struct {
+	Name string
+	Description string
+}
+
 type Room struct {
 	Name        string
 	Description string
 	Exits       map[string]*Room
-	Items       []string
+	Items       map[string]*Item
 }
 
 type Player struct {
 	CurrentRoom *Room
-	Inventory   []string
+	Inventory   map[string]*Item
 }
 
 func (p *Player) Move(direction string) {
@@ -21,6 +26,14 @@ func (p *Player) Move(direction string) {
 		p.CurrentRoom = newRoom
 	} else {
 		fmt.Println("You can't go that way!")
+	}
+}
+
+func (p *Player) Take(itemName string) {
+	if item, ok := p.CurrentRoom.Items[itemName]; ok{
+		p.Inventory[item.Name] = item
+
+		delete(p.CurrentRoom.Items, itemName)
 	}
 }
 
