@@ -56,5 +56,16 @@ func (p *Player) Drop(itemName string) {
 	}
 }
 
+func (p *Player) ShowInventory() {
+	if len(p.Inventory) == 0 {
+		fmt.Println("Your inventory is empty.")
+		return
+	}
+	fmt.Println("Your inventory contains:")
+	for itemName, item := range p.Inventory {
+		fmt.Printf("- %s: %s\n", itemName, item.Description)
+	}
+}
+
 func main() {
 }

@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"os"
 	"testing"
 )
 
@@ -140,6 +143,7 @@ func TestDropAbsentItem(t *testing.T) {
 	
 	//Act
 	player.Move("north")
+
 	player.Drop(item.Name)
 
 	//Assert
@@ -164,5 +168,107 @@ func TestDropNonexistentItem(t *testing.T) {
 	}
 	if _, ok := room.Items["Item"]; ok {
 		t.Errorf("Expected false for item absent from the room, got true")
+	}
+}
+
+func TestShowInventory(t *testing.T) {
+	// Arrange
+	room := Room{Items: make(map[string]*Item)}
+	item := Item{Name: "Item", Description: "This is an item."}
+	room.Items[item.Name] = &item
+	
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player.Take(item.Name)
+
+	r, w, _ := os.Pipe()
+	defer r.Close()
+	defer w.Close()
+	
+	original := os.Stdout
+	os.Stdout = w
+
+	// Act
+	player.ShowInventory()
+	
+	w.Close()
+	os.Stdout = original
+
+	var buf bytes.Buffer
+	buf.ReadFrom(r)
+
+	// Assert
+	output := buf.String()
+	expectedOutput := fmt.Sprintf("Your inventory contains:\n- %s: %s\n", item.Name, item.Description)
+
+	if output != expectedOutput {
+		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
+	}
+}
+
+func TestShowInventoryMultipleItems(t *testing.T) {
+	// Arrange
+	room := Room{Items: make(map[string]*Item)}
+	item1 := Item{Name: "Item1", Description: "This is an item."}
+	item2 := Item{Name: "Item2", Description: "This is another item."}
+	room.Items[item1.Name] = &item1
+	room.Items[item2.Name] = &item2
+	
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player.Take(item1.Name)
+	player.Take(item2.Name)
+
+	r, w, _ := os.Pipe()
+	defer r.Close()
+	defer w.Close()
+	
+	original := os.Stdout
+	os.Stdout = w
+
+	// Act
+	player.ShowInventory()
+	
+	w.Close()
+	os.Stdout = original
+
+	var buf bytes.Buffer
+	buf.ReadFrom(r)
+
+	// Assert
+	output := buf.String()
+	expectedOutput := fmt.Sprintf("Your inventory contains:\n- %s: %s\n- %s: %s\n", item1.Name, item1.Description, item2.Name, item2.Description)
+
+	if output != expectedOutput {
+		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
+	}
+}
+
+func TestShowInventoryIsEmpty(t *testing.T) {
+	// Arrange
+	room := Room{Items: make(map[string]*Item)}
+	
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+
+	r, w, _ := os.Pipe()
+	defer r.Close()
+	defer w.Close()
+	
+	original := os.Stdout
+	os.Stdout = w
+
+	// Act
+	player.ShowInventory()
+	
+	w.Close()
+	os.Stdout = original
+
+	var buf bytes.Buffer
+	buf.ReadFrom(r)
+
+	// Assert
+	output := buf.String()
+	expectedOutput := "Your inventory is empty.\n"
+
+	if output != expectedOutput {
+		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
 	}
 }
