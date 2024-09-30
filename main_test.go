@@ -272,3 +272,34 @@ func TestShowInventoryIsEmpty(t *testing.T) {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
 	}
 }
+
+func TestShowRoom(t *testing.T) {
+	// Arrange
+	room := Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*Item)}
+	
+	player := Player{CurrentRoom: &room}
+
+	r, w, _ := os.Pipe()
+	defer r.Close()
+	defer w.Close()
+	
+	original := os.Stdout
+	os.Stdout = w
+
+	// Act
+	player.ShowRoom()
+
+	w.Close()
+	os.Stdout = original
+
+	var buf bytes.Buffer
+	buf.ReadFrom(r)
+
+	// Assert
+	output := buf.String()
+	expectedOutput := fmt.Sprintf("You are in %s: %s", player.CurrentRoom.Name, player.CurrentRoom.Description)
+
+	if output != expectedOutput {
+		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
+	}
+}

@@ -67,5 +67,9 @@ func (p *Player) ShowInventory() {
 	}
 }
 
+func (p *Player) ShowRoom() {
+	fmt.Printf("You are in %s: %s", p.CurrentRoom.Name, p.CurrentRoom.Description)
+}
+
 func main() {
 }
