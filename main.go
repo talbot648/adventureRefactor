@@ -17,7 +17,9 @@ type Player struct {
 }
 
 func (p *Player) Move(direction string) {
-	p.CurrentRoom = p.CurrentRoom.Exits[direction]
+	if newRoom, ok := p.CurrentRoom.Exits[direction]; ok {
+		p.CurrentRoom = newRoom
+	}
 }
 
 func main() {
