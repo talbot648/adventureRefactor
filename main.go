@@ -34,6 +34,8 @@ func (p *Player) Take(itemName string) {
 		p.Inventory[item.Name] = item
 
 		delete(p.CurrentRoom.Items, itemName)
+	} else {
+		fmt.Println("Item not found in the room.")
 	}
 }
 
