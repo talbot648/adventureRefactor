@@ -4,10 +4,23 @@ import (
 	"fmt"
 )
 
+type Describable interface {
+	SetDescription(description string)
+	GetDescription() string
+}
+
 type Item struct {
 	Name string
 	Description string
 	Weight int
+}
+
+func (i *Item) SetDescription(description string) {
+    i.Description = description
+}
+
+func (i *Item) GetDescription() string {
+    return i.Description
 }
 
 type Room struct {
@@ -16,6 +29,14 @@ type Room struct {
 	Exits map[string]*Room
 	Items map[string]*Item
 	Entities map[string]*Entity
+}
+
+func (r *Room) SetDescription(description string) {
+    r.Description = description
+}
+
+func (r *Room) GetDescription() string {
+    return r.Description
 }
 
 type Player struct {
@@ -29,6 +50,14 @@ type Player struct {
 type Entity struct {
 	Name string
 	Description string
+}
+
+func (e *Entity) SetDescription(description string) {
+    e.Description = description
+}
+
+func (e *Entity) GetDescription() string {
+    return e.Description
 }
 
 func (p *Player) Move(direction string) {
@@ -108,6 +137,10 @@ func (p *Player) Approach(entityName string) {
 	} else {
 		fmt.Printf("%s not found in the room.", entityName)
 	}
+}
+
+func updateDescription(d Describable, newDescription string) {
+	d.SetDescription(newDescription)
 }
 
 func main() {

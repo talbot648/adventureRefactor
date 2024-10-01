@@ -411,3 +411,27 @@ func TestApproachNonexistentEntity(t* testing.T) {
         t.Errorf("Expected CurrentEntity to be nil, but got a non-nil entity")
     }
 }
+
+func TestUpdateDescription(t *testing.T) {
+    //Arrange
+    room := &Room{Name: "Room", Description: "This is the first description"}
+    item := &Item{Name: "Item", Description: "This is the first description"}
+    entity := &Entity{Name: "Entity", Description: "This is the first description"}
+    newDescription := "This is the second description"
+    
+    //Act
+    updateDescription(room, newDescription)
+    updateDescription(item, newDescription)
+    updateDescription(entity, newDescription)
+
+    //Assert
+    if room.GetDescription() != newDescription {
+        t.Errorf("Expected description:\n%s\nGot:\n%s", newDescription, room.GetDescription())
+    }
+    if item.GetDescription() != newDescription {
+        t.Errorf("Expected description:\n%s\nGot:\n%s", newDescription, item.GetDescription())
+    }
+    if entity.GetDescription() != newDescription {
+        t.Errorf("Expected description:\n%s\nGot:\n%s", newDescription, entity.GetDescription())
+    }
+}
