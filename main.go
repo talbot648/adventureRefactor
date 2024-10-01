@@ -34,22 +34,6 @@ func (p *Player) Move(direction string) {
 	}
 }
 
-// func (p *Player) Take(itemName string) {
-// 	if item, ok := p.CurrentRoom.Items[itemName]; ok && p.AvailableWeight >= item.Weight{
-// 		p.Inventory[item.Name] = item
-// 		p.CarriedWeight += item.Weight
-// 		p.AvailableWeight -= item.Weight
-
-// 		delete(p.CurrentRoom.Items, item.Name)
-
-// 		fmt.Printf("%s has been added to your inventory.", item.Name)
-// 	} else if p.AvailableWeight < item.Weight {
-// 		fmt.Println("Weight limit reached! Please drop an item before taking more.")
-// 	} else {
-// 		fmt.Printf("%s not found in the room.", itemName)
-// 	}
-// }
-
 func (p *Player) Take(itemName string) {
 	item, ok := p.CurrentRoom.Items[itemName]
 	switch {
@@ -61,12 +45,23 @@ func (p *Player) Take(itemName string) {
 		return
 	default:
 		p.Inventory[item.Name] = item
-		p.CarriedWeight += item.Weight
-		p.AvailableWeight -= item.Weight
-
+		p.ChangeCarriedWeight(item, "increase")
 		delete(p.CurrentRoom.Items, item.Name)
 
 		fmt.Printf("%s has been added to your inventory.", item.Name)
+	}
+}
+
+func (p *Player) ChangeCarriedWeight(item *Item, operation string) {
+	switch {
+	case operation == "increase":
+		p.CarriedWeight += item.Weight
+		p.AvailableWeight -= item.Weight
+		return
+	case operation == "decrease":
+		p.CarriedWeight -= item.Weight
+		p.AvailableWeight += item.Weight
+		return
 	}
 }
 
@@ -74,10 +69,7 @@ func (p *Player) Drop(itemName string) {
 	if item, ok := p.Inventory[itemName]; ok {
 
 		delete(p.Inventory, item.Name)
-		
-		p.CarriedWeight -= item.Weight
-		p.AvailableWeight += item.Weight
-
+		p.ChangeCarriedWeight(item, "decrease")
 		p.CurrentRoom.Items[item.Name] = item
 
 		fmt.Printf("You dropped %s.", item.Name)
