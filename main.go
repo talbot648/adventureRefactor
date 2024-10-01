@@ -61,6 +61,10 @@ func (e *Entity) GetDescription() string {
 }
 
 func (p *Player) Move(direction string) {
+	if p.CurrentEntity != nil {
+		fmt.Printf("You have to leave %s before moving!\n", p.CurrentEntity.Name)
+		return
+	}
 	if newRoom, ok := p.CurrentRoom.Exits[direction]; ok {
 		p.CurrentRoom = newRoom
 
