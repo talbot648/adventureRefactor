@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -275,8 +276,12 @@ func TestShowInventoryIsEmpty(t *testing.T) {
 
 func TestShowRoom(t *testing.T) {
 	// Arrange
-	room := Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*Item)}
-	
+	room := Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
+	entity := Entity{Name: "Entity", Description: "This is Entity"}
+	item := Item{Name: "Item", Description: "This is an item.", Weight: 10}
+	room.Items[item.Name] = &item
+	room.Entities[entity.Name] = &entity
+
 	player := Player{CurrentRoom: &room}
 
 	r, w, _ := os.Pipe()
@@ -297,9 +302,17 @@ func TestShowRoom(t *testing.T) {
 
 	// Assert
 	output := buf.String()
-	expectedOutput := fmt.Sprintf("You are in %s: %s", player.CurrentRoom.Name, player.CurrentRoom.Description)
+	expectedOutput := fmt.Sprintf(
+		"You are in %s: %s\nYou can approach:\n- %s\nThe room contains:\n- %s: %s Weight: %d",
+		room.Name,
+		room.Description,
+		entity.Name,
+		item.Name,
+		item.Description,
+		item.Weight,
+	)
 
-	if output != expectedOutput {
+	if strings.TrimSpace(output) != strings.TrimSpace(expectedOutput) {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
 	}
 }

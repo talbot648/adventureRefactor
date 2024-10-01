@@ -126,8 +126,22 @@ func (p *Player) ShowInventory() {
 }
 
 func (p *Player) ShowRoom() {
-	fmt.Printf("You are in %s: %s", p.CurrentRoom.Name, p.CurrentRoom.Description)
+    fmt.Printf("You are in %s: %s\n", p.CurrentRoom.Name, p.CurrentRoom.Description)
+    
+	if len(p.CurrentRoom.Entities) != 0 {
+		fmt.Println("You can approach:")
+		for _, entity := range p.CurrentRoom.Entities {
+			fmt.Printf("- %s\n", entity.Name)
+		}
+	}
+    if len(p.CurrentRoom.Items) != 0 {
+        fmt.Println("The room contains:")
+        for itemName, item := range p.CurrentRoom.Items {
+            fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
+        }
+    }
 }
+
 
 func (p *Player) Approach(entityName string) {
 	if entity, ok := p.CurrentRoom.Entities[entityName]; ok {
