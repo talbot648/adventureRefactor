@@ -448,3 +448,19 @@ func TestUpdateDescription(t *testing.T) {
         t.Errorf("Expected description:\n%s\nGot:\n%s", newDescription, entity.GetDescription())
     }
 }
+
+func TestDisengageEntity(t *testing.T) {
+	//Arrange
+	room := Room{Name: "Room", Description: "This is a room.", Entities: make(map[string]*Entity)}
+	entity := Entity{Name: "Entity", Description: "This is an entity"}
+	room.Entities[entity.Name] = &entity
+	player := Player{CurrentRoom: &room}
+
+	//Act
+	player.Approach(entity.Name)
+	player.Leave()
+
+	if player.CurrentEntity != nil {
+        t.Errorf("Expected CurrentEntity to be nil, but got a non-nil entity")
+    }
+}

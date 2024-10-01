@@ -153,6 +153,15 @@ func (p *Player) Approach(entityName string) {
 	}
 }
 
+func (p *Player) Leave() {
+	if p.CurrentEntity != nil {
+		p.CurrentEntity = nil
+		p.ShowRoom()
+	} else {
+		fmt.Printf("You can't leave.")
+	}
+}
+
 func updateDescription(d Describable, newDescription string) {
 	d.SetDescription(newDescription)
 }
