@@ -85,7 +85,7 @@ func (p *Player) ShowInventory() {
 	}
 	fmt.Println("Your inventory contains:")
 	for itemName, item := range p.Inventory {
-		fmt.Printf("- %s: %s\n", itemName, item.Description)
+		fmt.Printf("- %s: %s. Weight: %d\n", itemName, item.Description, item.Weight)
 	}
 }
 
