@@ -64,7 +64,7 @@ func (p *Player) Move(direction string) {
 	if newRoom, ok := p.CurrentRoom.Exits[direction]; ok {
 		p.CurrentRoom = newRoom
 
-		fmt.Printf("You are in %s", p.CurrentRoom.Name)
+		fmt.Printf("You are in %s\n", p.CurrentRoom.Name)
 	} else {
 		fmt.Println("You can't go that way!")
 	}
@@ -74,7 +74,7 @@ func (p *Player) Take(itemName string) {
 	item, ok := p.CurrentRoom.Items[itemName]
 	switch {
 	case !ok:
-		fmt.Printf("%s not found in the room.", itemName)
+		fmt.Printf("%s not found in the room.\n", itemName)
 		return
 	case p.AvailableWeight < item.Weight:
 		fmt.Println("Weight limit reached! Please drop an item before taking more.")
@@ -84,7 +84,7 @@ func (p *Player) Take(itemName string) {
 		p.ChangeCarriedWeight(item, "increase")
 		delete(p.CurrentRoom.Items, item.Name)
 
-		fmt.Printf("%s has been added to your inventory.", item.Name)
+		fmt.Printf("%s has been added to your inventory.\n", item.Name)
 	}
 }
 
@@ -108,9 +108,9 @@ func (p *Player) Drop(itemName string) {
 		p.ChangeCarriedWeight(item, "decrease")
 		p.CurrentRoom.Items[item.Name] = item
 
-		fmt.Printf("You dropped %s.", item.Name)
+		fmt.Printf("You dropped %s.\n", item.Name)
 	} else {
-		fmt.Printf("You don't have %s.", itemName)
+		fmt.Printf("You don't have %s.\n", itemName)
 	}
 }
 
@@ -121,7 +121,7 @@ func (p *Player) ShowInventory() {
 	}
 	fmt.Println("Your inventory contains:")
 	for itemName, item := range p.Inventory {
-		fmt.Printf("- %s: %s. Weight: %d\n", itemName, item.Description, item.Weight)
+		fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
 	}
 }
 
@@ -149,7 +149,7 @@ func (p *Player) Approach(entityName string) {
 		p.CurrentEntity = entity
 		fmt.Println(entity.Description)
 	} else {
-		fmt.Printf("%s not found in the room.", entityName)
+		fmt.Printf("%s not found in the room.\n", entityName)
 	}
 }
 
@@ -158,7 +158,7 @@ func (p *Player) Leave() {
 		p.CurrentEntity = nil
 		p.ShowRoom()
 	} else {
-		fmt.Printf("You can't leave.")
+		fmt.Printf("You can't leave.\n")
 	}
 }
 
