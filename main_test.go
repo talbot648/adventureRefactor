@@ -72,11 +72,11 @@ func TestPickUpAbsentItem(t *testing.T) {
 	room1 := Room{Items: make(map[string]*Item)}
 	room2 := Room{Items: make(map[string]*Item)}
 	
-	item := Item{Name: "Item", Description: "This is an item."}
+	item := Item{Name: "Item", Description: "This is an item.", Weight: 10}
 
 	room1.Items[item.Name] = &item
 	
-	player := Player{CurrentRoom: &room2, Inventory: make(map[string]*Item)}
+	player := Player{CurrentRoom: &room2, Inventory: make(map[string]*Item),  CarriedWeight: 0, AvailableWeight: 30}
 	
 	//Act
 	player.Take(item.Name)
@@ -92,7 +92,7 @@ func TestPickUpNonexistentItem(t *testing.T) {
 	//Arrange
 	room2 := Room{Items: make(map[string]*Item)}
 
-	player := Player{CurrentRoom: &room2, Inventory: make(map[string]*Item)}
+	player := Player{CurrentRoom: &room2, Inventory: make(map[string]*Item), CarriedWeight: 0, AvailableWeight: 30}
 	
 	//Act
 	player.Take("Item")
@@ -301,5 +301,63 @@ func TestShowRoom(t *testing.T) {
 
 	if output != expectedOutput {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
+	}
+}
+
+func TestItemWeight(t *testing.T) {
+	//Arrange
+	room := Room{Items: make(map[string]*Item)}
+	item1 := Item{Name: "Item", Weight: 5}
+	item2 := Item{Name: "Item 2", Weight: 10}
+	item3 := Item{Name: "Item 3", Weight: 15}
+	room.Items[item1.Name] = &item1
+	room.Items[item2.Name] = &item2
+	room.Items[item3.Name] = &item3
+	
+	//Act
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), AvailableWeight: 30}
+	player.Take(item1.Name)
+	player.Take(item2.Name)
+	player.Drop(item2.Name)
+	player.Take(item3.Name)
+
+	//Assert
+	expectedOutput := 20
+	output := player.CarriedWeight
+	
+	if output != expectedOutput {
+		t.Errorf("Expected output:\n%d\nGot:\n%d", expectedOutput, output)
+	}
+}
+
+func TestAvailableWeight(t *testing.T) {
+	//Arrange
+	room := Room{Items: make(map[string]*Item)}
+	item1 := Item{Name: "Item", Weight: 5}
+	item2 := Item{Name: "Item 2", Weight: 16}
+	item3 := Item{Name: "Item 3", Weight: 15}
+	room.Items[item1.Name] = &item1
+	room.Items[item2.Name] = &item2
+	room.Items[item3.Name] = &item3
+	
+	//Act
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), AvailableWeight: 30}
+	player.Take(item1.Name)
+	player.Drop(item1.Name)
+	player.Take(item2.Name)
+	player.Take(item3.Name)
+
+	//Assert
+	expectedCarriedWeight := 16
+	actualCarriedWeight := player.CarriedWeight
+	
+	expectedAvailableWeight := 14
+	actualAvailableWeight := player.AvailableWeight
+	
+	if expectedCarriedWeight != actualCarriedWeight {
+		t.Errorf("Expected output:\n%d\nGot:\n%d", expectedCarriedWeight, actualCarriedWeight)
+	}
+	if expectedAvailableWeight != actualAvailableWeight {
+		t.Errorf("Expected output:\n%d\nGot:\n%d", expectedAvailableWeight, actualAvailableWeight)
 	}
 }

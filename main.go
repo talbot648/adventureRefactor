@@ -7,6 +7,7 @@ import (
 type Item struct {
 	Name string
 	Description string
+	Weight int
 }
 
 type Room struct {
@@ -19,6 +20,8 @@ type Room struct {
 type Player struct {
 	CurrentRoom *Room
 	Inventory   map[string]*Item
+	CarriedWeight int
+	AvailableWeight int
 }
 
 func (p *Player) Move(direction string) {
@@ -31,15 +34,39 @@ func (p *Player) Move(direction string) {
 	}
 }
 
+// func (p *Player) Take(itemName string) {
+// 	if item, ok := p.CurrentRoom.Items[itemName]; ok && p.AvailableWeight >= item.Weight{
+// 		p.Inventory[item.Name] = item
+// 		p.CarriedWeight += item.Weight
+// 		p.AvailableWeight -= item.Weight
+
+// 		delete(p.CurrentRoom.Items, item.Name)
+
+// 		fmt.Printf("%s has been added to your inventory.", item.Name)
+// 	} else if p.AvailableWeight < item.Weight {
+// 		fmt.Println("Weight limit reached! Please drop an item before taking more.")
+// 	} else {
+// 		fmt.Printf("%s not found in the room.", itemName)
+// 	}
+// }
+
 func (p *Player) Take(itemName string) {
-	if item, ok := p.CurrentRoom.Items[itemName]; ok{
+	item, ok := p.CurrentRoom.Items[itemName]
+	switch {
+	case !ok:
+		fmt.Printf("%s not found in the room.", itemName)
+		return
+	case p.AvailableWeight < item.Weight:
+		fmt.Println("Weight limit reached! Please drop an item before taking more.")
+		return
+	default:
 		p.Inventory[item.Name] = item
+		p.CarriedWeight += item.Weight
+		p.AvailableWeight -= item.Weight
 
 		delete(p.CurrentRoom.Items, item.Name)
 
 		fmt.Printf("%s has been added to your inventory.", item.Name)
-	} else {
-		fmt.Println("Item not found in the room.")
 	}
 }
 
@@ -47,6 +74,9 @@ func (p *Player) Drop(itemName string) {
 	if item, ok := p.Inventory[itemName]; ok {
 
 		delete(p.Inventory, item.Name)
+		
+		p.CarriedWeight -= item.Weight
+		p.AvailableWeight += item.Weight
 
 		p.CurrentRoom.Items[item.Name] = item
 
