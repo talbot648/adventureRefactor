@@ -43,7 +43,7 @@ func TestPlayerMovementInvalidDirection(t *testing.T) {
 	}
 }
 
-func TestPickUpItem(t *testing.T) {
+func TestTakeItem(t *testing.T) {
 	//Arrange
 	room := Room{Items: make(map[string]*Item)}
 	
@@ -67,7 +67,7 @@ func TestPickUpItem(t *testing.T) {
 	}
 }
 
-func TestPickUpAbsentItem(t *testing.T) {
+func TestTakeAbsentItem(t *testing.T) {
 	//Arrange
 	room1 := Room{Items: make(map[string]*Item)}
 	room2 := Room{Items: make(map[string]*Item)}
@@ -88,7 +88,7 @@ func TestPickUpAbsentItem(t *testing.T) {
 	}
 }
 
-func TestPickUpNonexistentItem(t *testing.T) {
+func TestTakeNonexistentItem(t *testing.T) {
 	//Arrange
 	room2 := Room{Items: make(map[string]*Item)}
 
@@ -360,4 +360,54 @@ func TestAvailableWeight(t *testing.T) {
 	if expectedAvailableWeight != actualAvailableWeight {
 		t.Errorf("Expected output:\n%d\nGot:\n%d", expectedAvailableWeight, actualAvailableWeight)
 	}
+}
+
+func TestApproachEntity(t* testing.T) {
+	//Arrange
+	room := Room{Name: "Room", Description: "This is a room.", Entities: make(map[string]*Entity)}
+	entity := Entity{Name: "Entity", Description: "This is an entity"}
+	room.Entities[entity.Name] = &entity
+	player := Player{CurrentRoom: &room}
+
+	//Act
+	player.Approach(entity.Name)
+
+	//Assert
+	expectedOutput :=  entity.Name
+	output := player.CurrentEntity.Name
+
+	if expectedOutput != output {
+		t.Errorf("Expected %s, got %s", expectedOutput, output)
+	}
+}
+
+func TestApproachAbsentEntity(t* testing.T) {
+	//Arrange
+	room1 := Room{Name: "Room 1", Entities: make(map[string]*Entity)}
+	room2 := Room{Entities: make(map[string]*Entity)}
+	entity := Entity{Name: "Entity", Description: "This is an entity"}
+	room2.Entities[entity.Name] = &entity
+	player := Player{CurrentRoom: &room1}
+
+	//Act
+	player.Approach(entity.Name)
+
+	//Assert
+	if player.CurrentEntity != nil {
+        t.Errorf("Expected CurrentEntity to be nil, but got a non-nil entity")
+    }
+}
+
+func TestApproachNonexistentEntity(t* testing.T) {
+	//Arrange
+	room1 := Room{Name: "Room 1", Entities: make(map[string]*Entity)}
+	player := Player{CurrentRoom: &room1}
+
+	//Act
+	player.Approach("Entity")
+
+	//Assert
+	if player.CurrentEntity != nil {
+        t.Errorf("Expected CurrentEntity to be nil, but got a non-nil entity")
+    }
 }

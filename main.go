@@ -11,17 +11,24 @@ type Item struct {
 }
 
 type Room struct {
-	Name        string
+	Name string
 	Description string
-	Exits       map[string]*Room
-	Items       map[string]*Item
+	Exits map[string]*Room
+	Items map[string]*Item
+	Entities map[string]*Entity
 }
 
 type Player struct {
 	CurrentRoom *Room
 	Inventory   map[string]*Item
+	CurrentEntity *Entity
 	CarriedWeight int
 	AvailableWeight int
+}
+
+type Entity struct {
+	Name string
+	Description string
 }
 
 func (p *Player) Move(direction string) {
@@ -91,6 +98,16 @@ func (p *Player) ShowInventory() {
 
 func (p *Player) ShowRoom() {
 	fmt.Printf("You are in %s: %s", p.CurrentRoom.Name, p.CurrentRoom.Description)
+}
+
+func (p *Player) Approach(entityName string) {
+	if entity, ok := p.CurrentRoom.Entities[entityName]; ok {
+
+		p.CurrentEntity = entity
+		fmt.Println(entity.Description)
+	} else {
+		fmt.Printf("%s not found in the room.", entityName)
+	}
 }
 
 func main() {
