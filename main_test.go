@@ -470,3 +470,38 @@ func TestEngagedPlayerCannotEngageOtherEntities(t *testing.T) {
 		t.Errorf("Expected player's current room to remain %s, got %s", entity1.Name, player.CurrentEntity.Name)
 	}
 }
+
+func TestShowMap(t * testing.T) {
+	//Arrange
+	room1 := Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*Room), Entities: make(map[string]*Entity)}
+    room2 := Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*Room), Entities: make(map[string]*Entity)}
+
+    room1.Exits["north"] = &room2
+    room2.Exits["south"] = &room1
+
+	player := Player{CurrentRoom: &room1}
+	
+	//Act
+	r, w, _ := os.Pipe()
+	defer r.Close()
+	defer w.Close()
+	
+	original := os.Stdout
+	os.Stdout = w
+
+	player.ShowMap()
+
+	w.Close()
+	os.Stdout = original
+
+	var buf bytes.Buffer
+	buf.ReadFrom(r)
+
+	// Assert
+	output := buf.String()
+	expectedOutput := fmt.Sprintf("north: %s\n", player.CurrentRoom.Exits["north"].Name)
+
+	if output != expectedOutput {
+		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
+	}
+}

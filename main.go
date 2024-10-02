@@ -170,6 +170,12 @@ func (p *Player) Leave() {
 	}
 }
 
+func (p *Player) ShowMap() {
+	for direction, exit := range p.CurrentRoom.Exits {
+		fmt.Printf("%s: %s\n", direction, exit.Name)
+	}
+}
+
 func updateDescription(d Describable, newDescription string) {
 	d.SetDescription(newDescription)
 }
