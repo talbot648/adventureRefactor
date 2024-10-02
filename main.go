@@ -13,6 +13,7 @@ type Item struct {
 	Name string
 	Description string
 	Weight int
+	Hidden bool
 }
 
 func (i *Item) SetDescription(description string) {
@@ -50,6 +51,7 @@ type Player struct {
 type Entity struct {
 	Name string
 	Description string
+	Hidden bool
 }
 
 type Event struct {
@@ -102,7 +104,7 @@ func (p *Player) Move(direction string) {
 func (p *Player) Take(itemName string) {
 	item, ok := p.CurrentRoom.Items[itemName]
 	switch {
-	case !ok:
+	case !ok || item.Hidden:
 		fmt.Printf("%s not found in the room.\n", itemName)
 		return
 	case p.AvailableWeight < item.Weight:
@@ -157,18 +159,40 @@ func (p *Player) ShowInventory() {
 func (p *Player) ShowRoom() {
     fmt.Printf("You are in %s: %s\n", p.CurrentRoom.Name, p.CurrentRoom.Description)
     
-	if len(p.CurrentRoom.Entities) != 0 {
+	if p.EntitiesArePresent() {
 		fmt.Println("You can approach:")
 		for _, entity := range p.CurrentRoom.Entities {
 			fmt.Printf("- %s\n", entity.Name)
 		}
 	}
-    if len(p.CurrentRoom.Items) != 0 {
+    if p.ItemsArePresent() {
         fmt.Println("The room contains:")
         for itemName, item := range p.CurrentRoom.Items {
             fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
         }
     }
+}
+
+func (p *Player) ItemsArePresent() bool {
+	if len(p.CurrentRoom.Items) != 0 {
+	for _, item := range p.CurrentRoom.Items {
+		if !item.Hidden {
+			return true
+		}
+	}
+}
+	return false
+}
+
+func (p *Player) EntitiesArePresent() bool {
+	if len(p.CurrentRoom.Entities) != 0 {
+	for _, entity := range p.CurrentRoom.Entities {
+		if !entity.Hidden {
+			return true
+		}
+	}
+}
+	return false
 }
 
 
@@ -177,7 +201,7 @@ func (p *Player) Approach(entityName string) {
 		fmt.Printf("You have to leave %s before you can do that!\n", p.CurrentEntity.Name)
 		return
 	}
-	if entity, ok := p.CurrentRoom.Entities[entityName]; ok {
+	if entity, ok := p.CurrentRoom.Entities[entityName]; ok && !entity.Hidden{
 
 		p.CurrentEntity = entity
 		fmt.Println(entity.Description)

@@ -105,6 +105,26 @@ func TestTakeNonexistentItem(t *testing.T) {
 	}
 }
 
+func TestTakeHiddenItem(t *testing.T) {
+	//Arrange
+	room := Room{Items: make(map[string]*Item)}
+	
+	item := Item{Name: "Item", Description: "This is an item.", Weight: 10, Hidden: true}
+
+	room.Items[item.Name] = &item
+	
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item),  CarriedWeight: 0, AvailableWeight: 30}
+	
+	//Act
+	player.Take(item.Name)
+
+
+	//Assert
+	if _, ok := player.Inventory[item.Name]; ok {
+		t.Errorf("Expected false for picking up hidden item, got true")
+	}
+}
+
 func TestDropItem(t *testing.T) {
 	//Arrange
 	room := Room{Items: make(map[string]*Item)}
@@ -280,6 +300,88 @@ func TestShowRoom(t *testing.T) {
 	}
 }
 
+func TestShowHiddenItems(t *testing.T) {
+	// Arrange
+	room := Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
+	entity := Entity{Name: "Entity", Description: "This is Entity", Hidden: false}
+	item := Item{Name: "Item", Description: "This is an item.", Weight: 10, Hidden: true}
+	room.Items[item.Name] = &item
+	room.Entities[entity.Name] = &entity
+
+	player := Player{CurrentRoom: &room}
+
+	r, w, _ := os.Pipe()
+	defer r.Close()
+	defer w.Close()
+	
+	original := os.Stdout
+	os.Stdout = w
+
+	// Act
+	player.ShowRoom()
+
+	w.Close()
+	os.Stdout = original
+
+	var buf bytes.Buffer
+	buf.ReadFrom(r)
+
+	// Assert
+	output := buf.String()
+	expectedOutput := fmt.Sprintf(
+		"You are in %s: %s\nYou can approach:\n- %s\n",
+		room.Name,
+		room.Description,
+		entity.Name,
+	)
+
+	if strings.TrimSpace(output) != strings.TrimSpace(expectedOutput) {
+		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
+	}
+}
+
+func TestNotShowHiddenEntities(t *testing.T) {
+	// Arrange
+	room := Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
+	entity := Entity{Name: "Entity", Description: "This is Entity", Hidden: true}
+	item := Item{Name: "Item", Description: "This is an item.", Weight: 10, Hidden: false}
+	room.Items[item.Name] = &item
+	room.Entities[entity.Name] = &entity
+
+	player := Player{CurrentRoom: &room}
+
+	r, w, _ := os.Pipe()
+	defer r.Close()
+	defer w.Close()
+	
+	original := os.Stdout
+	os.Stdout = w
+
+	// Act
+	player.ShowRoom()
+
+	w.Close()
+	os.Stdout = original
+
+	var buf bytes.Buffer
+	buf.ReadFrom(r)
+
+	// Assert
+	output := buf.String()
+	expectedOutput := fmt.Sprintf(
+		"You are in %s: %s\nThe room contains:\n- %s: %s Weight: %d\n",
+		room.Name,
+		room.Description,
+		item.Name,
+		item.Description,
+		item.Weight,
+	)
+
+	if strings.TrimSpace(output) != strings.TrimSpace(expectedOutput) {
+		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
+	}
+}
+
 func TestItemWeight(t *testing.T) {
 	//Arrange
 	room := Room{Items: make(map[string]*Item)}
@@ -381,6 +483,22 @@ func TestApproachNonexistentEntity(t* testing.T) {
 
 	//Act
 	player.Approach("Entity")
+
+	//Assert
+	if player.CurrentEntity != nil {
+        t.Errorf("Expected CurrentEntity to be nil, but got a non-nil entity")
+    }
+}
+
+func TestApproachHiddenEntity(t* testing.T) {
+	//Arrange
+	room := Room{Name: "Room 1", Entities: make(map[string]*Entity)}
+	entity := Entity{Name: "Entity", Description: "This is an entity", Hidden: true}
+	room.Entities[entity.Name] = &entity
+	player := Player{CurrentRoom: &room}
+
+	//Act
+	player.Approach(entity.Name)
 
 	//Assert
 	if player.CurrentEntity != nil {
