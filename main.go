@@ -157,7 +157,9 @@ func (p *Player) ShowRoom() {
     if p.ItemsArePresent() {
         fmt.Println("The room contains:")
         for itemName, item := range p.CurrentRoom.Items {
-            fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
+			if !item.Hidden {
+				fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
+			}
         }
     }
 }
@@ -248,3 +250,4 @@ func updateDescription(d Describable, newDescription string) {
 }
 
 func main() {}
+
