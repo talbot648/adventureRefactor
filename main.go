@@ -66,18 +66,7 @@ type Interaction struct {
 	Event *Event
 }
 
-var validInteractions = []*Interaction{
-    {
-        ItemName:   "key",
-        EntityName: "door",
-        Event:      &Event{Description: "unlock_door", Outcome: "The door unlocks with a loud click.\n", Triggered: false},
-    },
-    {
-        ItemName:   "water",
-        EntityName: "plant",
-        Event:      &Event{Description: "water_plant", Outcome: "The plant looks healthier after being watered.\n", Triggered: false},
-    },
-}
+var validInteractions = []*Interaction{}
 
 func (e *Entity) SetDescription(description string) {
     e.Description = description

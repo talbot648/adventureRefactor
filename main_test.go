@@ -8,6 +8,22 @@ import (
 	"testing"
 )
 
+func setUpValidInteractions() {
+	validInteractions = []*Interaction{
+		{
+			ItemName:   "key",
+			EntityName: "door",
+			Event:      &Event{Description: "unlock_door", Outcome: "The door unlocks with a loud click.\n", Triggered: false},
+		},
+		{
+			ItemName:   "water",
+			EntityName: "plant",
+			Event:      &Event{Description: "water_plant", Outcome: "The plant looks healthier after being watered.\n", Triggered: false},
+		},
+	}
+}
+
+
 func TestPlayerMovement(t *testing.T) {
 	//Arrange
 	room1 := Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*Room)}
@@ -626,6 +642,7 @@ func TestShowMap(t * testing.T) {
 
 func TestValidUseItem(t *testing.T) {
 	//Arrange
+	setUpValidInteractions()
 	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
 	key := Item{Name: "key"}
 	door := Entity{Name: "door"}
@@ -643,11 +660,11 @@ func TestValidUseItem(t *testing.T) {
 	if !validInteractions[0].Event.Triggered {
 		t.Errorf("Expected event to be true for triggered, got false")
 	}
-	validInteractions[0].Event.Triggered = false
 }
 
 func TestInvalidUseItem(t *testing.T) {
 	//Arrange
+	setUpValidInteractions()
 	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
 	key := Item{Name: "key"}
 	plant := Entity{Name: "plant"}
@@ -665,13 +682,13 @@ func TestInvalidUseItem(t *testing.T) {
 	for _, validInteraction := range validInteractions {
 		if validInteraction.Event.Triggered {
 			t.Errorf("Expected event to be false for triggered, got true")
-			validInteraction.Event.Triggered = false
 		}
 	}
 }
 
 func TestUseAbsentItem(t *testing.T) {
 	//Arrange
+	setUpValidInteractions()
 	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
 	key := Item{Name: "key"}
 	door := Entity{Name: "door"}
@@ -687,12 +704,12 @@ func TestUseAbsentItem(t *testing.T) {
 	//Assert
 	if validInteractions[0].Event.Triggered {
 		t.Errorf("Expected event to be false for triggered, got true")
-		validInteractions[0].Event.Triggered = false
 	}
 }
 
 func TestUseAbsentEntity(t *testing.T) {
 	//Arrange
+	setUpValidInteractions()
 	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
 	key := Item{Name: "key"}
 	door := Entity{Name: "door"}
@@ -708,6 +725,5 @@ func TestUseAbsentEntity(t *testing.T) {
 	//Assert
 	if validInteractions[0].Event.Triggered {
 		t.Errorf("Expected event to be false for triggered, got true")
-		validInteractions[0].Event.Triggered = false
 	}
 }
