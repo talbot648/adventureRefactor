@@ -715,7 +715,7 @@ func TestUseAbsentEntity(t *testing.T) {
 	door := Entity{Name: "door"}
 	room.Entities[door.Name] = &door
 	room.Items[key.Name] = &key
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), CurrentEntity: nil}
 	
 	//Act
 

@@ -204,7 +204,7 @@ func (p *Player) Leave() {
 		p.CurrentEntity = nil
 		p.ShowRoom()
 	} else {
-		fmt.Printf("You can't leave.\n")
+		fmt.Printf("You have not approached anything. If you wish to leave the game, use the exit command.\n")
 	}
 }
 
@@ -215,7 +215,11 @@ func (p *Player) ShowMap() {
 }
 
 func (p *Player) Use(itemName string, target string) {
-	if p.CurrentEntity != nil && p.CurrentEntity.Name == target {
+	if p.CurrentEntity == nil {
+		fmt.Println("Approach to use an item.")
+		return
+	}	
+	if p.CurrentEntity.Name == target {
 		if _, ok := p.Inventory[itemName]; ok {
 				for _, interaction := range validInteractions {
 					if interaction.ItemName == itemName && interaction.EntityName == target {
@@ -243,5 +247,4 @@ func updateDescription(d Describable, newDescription string) {
 	d.SetDescription(newDescription)
 }
 
-func main() {
-}
+func main() {}
