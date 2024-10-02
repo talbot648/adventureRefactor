@@ -52,6 +52,31 @@ type Entity struct {
 	Description string
 }
 
+type Event struct {
+	Description string
+	Outcome string
+	Triggered bool
+}
+
+type Interaction struct {
+	ItemName string
+	EntityName string
+	Event *Event
+}
+
+var validInteractions = []*Interaction{
+    {
+        ItemName:   "key",
+        EntityName: "door",
+        Event:      &Event{Description: "unlock_door", Outcome: "The door unlocks with a loud click.\n", Triggered: false},
+    },
+    {
+        ItemName:   "water",
+        EntityName: "plant",
+        Event:      &Event{Description: "water_plant", Outcome: "The plant looks healthier after being watered.\n", Triggered: false},
+    },
+}
+
 func (e *Entity) SetDescription(description string) {
     e.Description = description
 }
@@ -174,6 +199,19 @@ func (p *Player) ShowMap() {
 	for direction, exit := range p.CurrentRoom.Exits {
 		fmt.Printf("%s: %s\n", direction, exit.Name)
 	}
+}
+
+func (p *Player) Use(itemName string, target string) {
+	for _, interaction := range validInteractions {
+		if interaction.ItemName == itemName && interaction.EntityName == target {
+			p.TriggerEvent(interaction.Event)
+		}
+	}
+}
+
+func (p *Player) TriggerEvent(event *Event) {
+	fmt.Println(event.Outcome)
+	event.Triggered = true
 }
 
 func updateDescription(d Describable, newDescription string) {

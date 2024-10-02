@@ -505,3 +505,24 @@ func TestShowMap(t * testing.T) {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
 	}
 }
+
+func TestValidUseItem(t *testing.T) {
+	//Arrange
+	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
+	key := Item{Name: "key"}
+	door := Entity{Name: "door"}
+	room.Entities[door.Name] = &door
+	room.Items[key.Name] = &key
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player.Inventory[key.Name] = &key
+	
+	//Act
+
+	player.Approach("door")
+	player.Use("key", "door")
+
+	//Assert
+	if !validInteractions[0].Event.Triggered {
+		t.Errorf("Expected event to be true for triggered, got false")
+	}
+}
