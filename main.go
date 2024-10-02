@@ -148,6 +148,10 @@ func (p *Player) ShowRoom() {
 
 
 func (p *Player) Approach(entityName string) {
+	if p.CurrentEntity != nil {
+		fmt.Printf("You have to leave %s before you can do that!\n", p.CurrentEntity.Name)
+		return
+	}
 	if entity, ok := p.CurrentRoom.Entities[entityName]; ok {
 
 		p.CurrentEntity = entity
