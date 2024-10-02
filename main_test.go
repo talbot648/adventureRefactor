@@ -525,4 +525,71 @@ func TestValidUseItem(t *testing.T) {
 	if !validInteractions[0].Event.Triggered {
 		t.Errorf("Expected event to be true for triggered, got false")
 	}
+	validInteractions[0].Event.Triggered = false
+}
+
+func TestInvalidUseItem(t *testing.T) {
+	//Arrange
+	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
+	key := Item{Name: "key"}
+	plant := Entity{Name: "plant"}
+	room.Entities[plant.Name] = &plant
+	room.Items[key.Name] = &key
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player.Inventory[key.Name] = &key
+	
+	//Act
+
+	player.Approach("plant")
+	player.Use("key", "plant")
+
+	//Assert
+	for _, validInteraction := range validInteractions {
+		if validInteraction.Event.Triggered {
+			t.Errorf("Expected event to be false for triggered, got true")
+			validInteraction.Event.Triggered = false
+		}
+	}
+}
+
+func TestUseAbsentItem(t *testing.T) {
+	//Arrange
+	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
+	key := Item{Name: "key"}
+	door := Entity{Name: "door"}
+	room.Entities[door.Name] = &door
+	room.Items[key.Name] = &key
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	
+	//Act
+
+	player.Approach("door")
+	player.Use("key", "door")
+
+	//Assert
+	if validInteractions[0].Event.Triggered {
+		t.Errorf("Expected event to be false for triggered, got true")
+		validInteractions[0].Event.Triggered = false
+	}
+}
+
+func TestUseAbsentEntity(t *testing.T) {
+	//Arrange
+	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
+	key := Item{Name: "key"}
+	door := Entity{Name: "door"}
+	room.Entities[door.Name] = &door
+	room.Items[key.Name] = &key
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	
+	//Act
+
+	player.Take("key")
+	player.Use("key", "door")
+
+	//Assert
+	if validInteractions[0].Event.Triggered {
+		t.Errorf("Expected event to be false for triggered, got true")
+		validInteractions[0].Event.Triggered = false
+	}
 }

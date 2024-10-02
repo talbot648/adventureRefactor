@@ -202,11 +202,23 @@ func (p *Player) ShowMap() {
 }
 
 func (p *Player) Use(itemName string, target string) {
-	for _, interaction := range validInteractions {
-		if interaction.ItemName == itemName && interaction.EntityName == target {
-			p.TriggerEvent(interaction.Event)
+	if p.CurrentEntity != nil && p.CurrentEntity.Name == target {
+		if _, ok := p.Inventory[itemName]; ok {
+				for _, interaction := range validInteractions {
+					if interaction.ItemName == itemName && interaction.EntityName == target {
+						p.TriggerEvent(interaction.Event)
+						return
+					}
+				}
+		} else {
+			fmt.Printf("You don't have %s.\n", itemName)
+			return
 		}
+	} else {
+		fmt.Printf("%s not found.\n", target)
+		return
 	}
+	fmt.Printf("You can't use %s on %s.\n", itemName, target)
 }
 
 func (p *Player) TriggerEvent(event *Event) {
