@@ -151,7 +151,7 @@ func (p *Player) Drop(itemName string) {
 
 func (p *Player) ShowInventory() {
 	if len(p.Inventory) == 0 {
-		fmt.Printf("Your inventory is empty.\nAvailable space: %d", p.AvailableWeight)
+		fmt.Printf("Your inventory is empty.\nAvailable space: %d\n", p.AvailableWeight)
 		return
 	}
 	fmt.Printf("Available space: %d\nYour inventory contains:\n", p.AvailableWeight)
@@ -254,6 +254,7 @@ func (p *Player) Use(itemName string, target string) {
 				for _, interaction := range validInteractions {
 					if interaction.ItemName == itemName && interaction.EntityName == target {
 						p.TriggerEvent(interaction.Event)
+						p.ChangeCarriedWeight(p.Inventory[itemName], "decrease")
 						delete(p.Inventory, itemName)
 						return
 					}

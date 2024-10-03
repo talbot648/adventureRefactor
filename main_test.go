@@ -266,7 +266,7 @@ func TestShowInventoryIsEmpty(t *testing.T) {
 
 	// Assert
 	output := buf.String()
-	expectedOutput := fmt.Sprintf("Your inventory is empty.\nAvailable space: %d", player.AvailableWeight)
+	expectedOutput := fmt.Sprintf("Your inventory is empty.\nAvailable space: %d\n", player.AvailableWeight)
 
 	if output != expectedOutput {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
@@ -687,11 +687,11 @@ func TestValidUseItem(t *testing.T) {
 	//Arrange
 	setUpValidInteractions()
 	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
-	key := Item{Name: "key"}
+	key := Item{Name: "key", Weight: 1}
 	door := Entity{Name: "door"}
 	room.Entities[door.Name] = &door
 	room.Items[key.Name] = &key
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), AvailableWeight: 30}
 	
 	//Act
 	player.Take("key")
@@ -707,6 +707,9 @@ func TestValidUseItem(t *testing.T) {
 	}
 	if _, ok := player.CurrentRoom.Items["key"]; ok {
 		t.Errorf("Expected used item to not be present in the room")
+	}
+	if player.AvailableWeight < 30 {
+		t.Errorf("Expected inventory to return to its original state after using item")
 	}
 }
 
