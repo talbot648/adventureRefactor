@@ -284,7 +284,7 @@ func showCommands() {
 }
 
 func main() {
-	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape? The clock is ticking...\n\nif at any point you feel lost, type 'commands' to display the list of all commands."
+	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape? The clock is ticking...\n\nif at any point you feel lost, type 'commands' to display the list of all commands.\nThe command 'look' is always useful to get your bearings and see the options available to you."
 
 	gameOver := false
 	introductionShown:= false
@@ -293,22 +293,26 @@ func main() {
 		{
 			ItemName:   "tea",
 			EntityName: "rosie",
-			Event:      &Event{Description: "get-your-lanyard", Outcome: "Cheers! I needed that... by the way, where is your lanyard? You'll need that to move between rooms, here it is. (lanyard can now be found in the room).\n", Triggered: false},
+			Event:      &Event{Description: "get-your-lanyard", Outcome: "Cheers! I needed that... by the way, where is your lanyard? I must have forgotten to give it to you.\nYou'll need that to move between rooms, here it is.\n\n(lanyard can now be found in the room).\n", Triggered: false},
 		},
 	}
 
-	grumpyRosie := &Event{Description: "rosie-is-grumpy", Outcome: "Rosie caught you in the act of swiping a lanyard from a fellow student. You have made Rosie grumpy and you've lost the game.\n", Triggered: false}
+	grumpyRosie := &Event{Description: "rosie-is-grumpy", Outcome: "Rosie caught you in the act of swiping a lanyard from a fellow student.\nYou have made Rosie grumpy and you've lost the game.\n", Triggered: false}
+
+	unlockComputer := &Event{Description: "computer-is-unlocked", Outcome: "You enter the password, holding your breath. Yes! The screen flickers to life.\nyou've unlocked the computer and now have full access.\n\nApproach Alan for the next challenge.\n", Triggered: false}
+
+	computerPassword := "iiwsccrtc"
 
 	staffRoom := Room{
-		Name:        "Break Room",
-		Description: "A cozy lounge designed for both academy students and tutors, offering a welcoming space to unwind and socialise. Comfortable seating invites you to relax, while the warm ambiance encourages lively conversations and friendly exchanges.",
+		Name:        "break-room",
+		Description: "A cozy lounge designed for both academy students and tutors, offering a welcoming space to unwind and socialise.\nComfortable seating invites you to relax, while the warm ambiance encourages lively conversations and friendly exchanges.",
 		Items:      make(map[string]*Item),
 		Entities:   make(map[string]*Entity),
 		Exits:      make(map[string]*Room),
 	}
 
 	codingLab := Room{
-		Name:        "Coding Lab",
+		Name:        "coding-lab",
 		Description: "A dark room filled with server racks and a single, locked terminal.",
 		Items:      make(map[string]*Item),
 		Entities:   make(map[string]*Entity),
@@ -319,24 +323,26 @@ func main() {
 	codingLab.Exits["north"] = &staffRoom
 
 	rosie := Entity{Name: "rosie", Description: "Ugh, what? Sorry, I can't think straight without a brew. Get me some tea, and then we'll talk...", Hidden: false}
-	kettle := Entity{Name: "kettle", Description: "You set the kettle to boil, brewing the strongest cup of tea you've ever made. A comforting aroma fills the room as the tea is now ready. (tea can now be found in the room)", Hidden: false}
-	sofa := Entity{Name: "sofa", Description: "You come across one of your fellow academy students fast asleep on the sofa. Next to them, their lanyard lies carelessly within reach. You know you shouldn't take it, but the temptation lingers... (stolen-lanyard can now be found in the room)", Hidden: false}
+	kettle := Entity{Name: "kettle", Description: "You set the kettle to boil, brewing the strongest cup of tea you've ever made. A comforting aroma fills the room as the tea is now ready.\n\n(tea can now be found in the room)\n", Hidden: false}
+	sofa := Entity{Name: "sofa", Description: "You come across one of your fellow academy students fast asleep on the sofa. Next to them, their lanyard lies carelessly within reach.\nYou know you shouldn't take it, but the temptation lingers...\n\n(abandoned-lanyard can now be found in the room)\n", Hidden: false}
 	tea := Item{Name: "tea", Description: "A steaming cup of Yorkshire tea, rich and comforting.", Weight: 2, Hidden: true}
-	lanyard := Item{Name: "lanyard", Description: "Your lanyard, a key to unlocking any door within the building.", Hidden: true}
-	stolenLanyard := Item{Name: "stolen-lanyard", Description: "A lanyard, a key to unlocking any door within the building.", Hidden: true}
-	computer := Entity{Name: "computer", Description: "Alan's computer. You need the password to get in.", Hidden: false}
-	alan := Entity{Name: "alan", Description: "Oh you are finally here... What are you waiting for, crack on with the code. The computer is over there...\nWhat? you don't know the password? Oh right... I can't say what it is, but I can't tell you what is not: it's definitely not waterfall!", Hidden: false}
-	agileManifesto := Entity{Name: "agile-manifesto", Description: "", Hidden: false}
+	lanyard := Item{Name: "lanyard", Description: "Your lanyard, a key to unlocking any door within the building.", Weight: 1, Hidden: true}
+	abandonedLanyard := Item{Name: "abandoned-lanyard", Description: "An abandoned lanyard, a key to unlocking any door within the building.", Weight: 1, Hidden: true}
+	computer := Entity{Name: "computer", Description: "Alan's computer. You need the password to get in.\n\nEnter the password:\n", Hidden: false}
+	alan := Entity{Name: "alan", Description: "Oh, you've finally made it... What are you waiting for, crack on with the code. The computer is right there...\nWhat's that? You don't know the password? Oh right... it's nine letters, but I can't tell you what it is, although I can tell you what is not: it's definitely not waterfall!", Hidden: false}
+	agileManifesto := Entity{Name: "agile-manifesto", Description: "A large, framed document hangs prominently on the wall, its edges slightly frayed\nYou can almost feel the energy of past brainstorming sessions in the air as you read the four key values:\n\nIndividuals and Interactions over processes and tools.\n\nWorking Software over comprehensive documentation.\n\nCustomer Collaboration over contract negotiation.\n\nResponding To Change over following a plan.\n", Hidden: false}
 
 	staffRoom.Items[tea.Name] = &tea
 	staffRoom.Items[lanyard.Name] = &lanyard
-	staffRoom.Items[stolenLanyard.Name] = &stolenLanyard
+	staffRoom.Items[abandonedLanyard.Name] = &abandonedLanyard
 	staffRoom.Entities[rosie.Name] = &rosie
 	staffRoom.Entities[kettle.Name] = &kettle
 	staffRoom.Entities[sofa.Name] = &sofa
 	codingLab.Entities[computer.Name] = &computer
 	codingLab.Entities[alan.Name] = &alan
 	codingLab.Entities[agileManifesto.Name] = &agileManifesto
+
+	isAttemptingPassword := false
 
 	player := Player{
 		CurrentRoom:     &staffRoom,
@@ -350,8 +356,8 @@ func main() {
 	for {
 
 		if player.CurrentEntity != nil && player.CurrentEntity.Name == "sofa" {
-			stolenLanyard.Hidden = false
-			sofa.SetDescription("One of your fellow academy students. Still asleep on the sofa.")
+			abandonedLanyard.Hidden = false
+			sofa.SetDescription("Your fellow academy student continues to sleep on the sofa. Something tells you it's down to you to get stuff done today...")
 		}
 
 		if player.CurrentEntity != nil && player.CurrentEntity.Name == "kettle" {
@@ -366,7 +372,8 @@ func main() {
 			}
 		}
 
-		if _, ok := player.Inventory["stolen-lanyard"]; ok {
+
+		if _, ok := player.Inventory["abandoned-lanyard"]; ok {
 			player.TriggerEvent(grumpyRosie)
 			gameOver = true
 		}
@@ -393,6 +400,19 @@ func main() {
 				clearScreen()
 				fmt.Println("Thank you for playing!")
 				break
+			}
+
+			if isAttemptingPassword {
+				if input == computerPassword {
+					clearScreen()
+					player.TriggerEvent(unlockComputer)
+					isAttemptingPassword = false
+				} else if input == "leave" {
+					isAttemptingPassword = false
+					} else {
+					fmt.Println("Incorrect password. Try again, or type 'leave' to stop entering the password.")
+					continue
+				}
 			}
 
 			parts := strings.Fields(input)
@@ -431,7 +451,11 @@ func main() {
 				clearScreen()
 				if len(args) > 0 {
 					player.Approach(args[0])
-				} else {
+
+					if player.CurrentEntity!= nil && player.CurrentEntity.Name == "computer" {
+                        isAttemptingPassword = true
+                    }
+                } else {
 					fmt.Println("Specify an entity to approach.")
 				}
 			case "use":
@@ -462,6 +486,8 @@ func main() {
 			case "map":
 				clearScreen()
 				player.ShowMap()
+			case computerPassword:
+				continue
 			default:
 				clearScreen()
 				fmt.Println("Unknown command:", command)
