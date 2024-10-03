@@ -151,10 +151,10 @@ func (p *Player) Drop(itemName string) {
 
 func (p *Player) ShowInventory() {
 	if len(p.Inventory) == 0 {
-		fmt.Println("Your inventory is empty.")
+		fmt.Printf("Your inventory is empty.\nAvailable space: %d", p.AvailableWeight)
 		return
 	}
-	fmt.Println("Your inventory contains:")
+	fmt.Printf("Available space: %d\nYour inventory contains:\n", p.AvailableWeight)
 	for itemName, item := range p.Inventory {
 		fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
 	}
@@ -283,6 +283,11 @@ func showCommands() {
 }
 
 func main() {
+	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape? The clock is ticking...\n\nif at any point you feel lost, type 'commands' to display the list of all commands."
+
+	gameOver := false
+	introductionShown:= false
+
 	validInteractions = []*Interaction{
 		{
 			ItemName:   "tea",
@@ -291,9 +296,11 @@ func main() {
 		},
 	}
 
+	grumpyRosie := &Event{Description: "rosie-is-grumpy", Outcome: "Rosie caught you in the act of swiping a lanyard from a fellow student. You have made Rosie grumpy and you've lost the game.\n", Triggered: false}
+
 	staffRoom := Room{
 		Name:        "Break Room",
-		Description: "A cozy lounge where both academy students and tutors can take a break and socialise.",
+		Description: "A cozy lounge designed for both academy students and tutors, offering a welcoming space to unwind and socialise. Comfortable seating invites you to relax, while the warm ambiance encourages lively conversations and friendly exchanges.",
 		Items:      make(map[string]*Item),
 		Entities:   make(map[string]*Entity),
 		Exits:      make(map[string]*Room),
@@ -310,16 +317,20 @@ func main() {
 	staffRoom.Exits["north"] = &terminalRoom
 	terminalRoom.Exits["south"] = &staffRoom
 
-	rosie := Entity{Name: "rosie", Description: "Uh what? Sorry, I need a brew before I can speak to anybody today...", Hidden: false}
-	kettle := Entity{Name: "kettle", Description: "You put the kettle on and make the strongest tea you have ever made. (tea can now be found in the room)", Hidden: false}
+	rosie := Entity{Name: "rosie", Description: "Ugh, what? Sorry, I can't think straight without a brew. Get me some tea, and then we'll talk...", Hidden: false}
+	kettle := Entity{Name: "kettle", Description: "You set the kettle to boil, brewing the strongest cup of tea you've ever made. A comforting aroma fills the room as the tea is now ready. (tea can now be found in the room)", Hidden: false}
+	sofa := Entity{Name: "sofa", Description: "You come across one of your fellow academy students fast asleep on the sofa. Next to them, their lanyard lies carelessly within reach. You know you shouldn't take it, but the temptation lingers... (other-lanyard can now be found in the room)", Hidden: false}
 	terminal := Entity{Name: "terminal", Description: "A locked terminal. It won't open without a key.", Hidden: false}
-	tea := Item{Name: "tea", Description: "A warm cup of yorkshire tea.", Hidden: true}
-	lanyard := Item{Name: "lanyard", Description: "Your lanyard. It can unlock any door in the building.", Hidden: true}
+	tea := Item{Name: "tea", Description: "A steaming cup of Yorkshire tea, rich and comforting.", Weight: 2, Hidden: true}
+	lanyard := Item{Name: "lanyard", Description: "Your lanyard, a key to unlocking any door within the building.", Hidden: true}
+	otherLanyard := Item{Name: "other-lanyard", Description: "A lanyard, a key to unlocking any door within the building.", Hidden: true}
 
 	staffRoom.Items[tea.Name] = &tea
 	staffRoom.Items[lanyard.Name] = &lanyard
+	staffRoom.Items[otherLanyard.Name] = &otherLanyard
 	staffRoom.Entities[rosie.Name] = &rosie
 	staffRoom.Entities[kettle.Name] = &kettle
+	staffRoom.Entities[sofa.Name] = &sofa
 	terminalRoom.Entities[terminal.Name] = &terminal
 
 	player := Player{
@@ -332,9 +343,15 @@ func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
+
+		if player.CurrentEntity != nil && player.CurrentEntity.Name == "sofa" {
+			otherLanyard.Hidden = false
+			sofa.SetDescription("One of your fellow academy students. Still asleep on the sofa.")
+		}
+
 		if player.CurrentEntity != nil && player.CurrentEntity.Name == "kettle" {
 			tea.Hidden = false
-			kettle.SetDescription("A kettle. Impossible to work without one nearby.");
+			kettle.SetDescription("A kettle — essential for survival, impossible to function without one nearby.");
 		}
 
 		for _, validInteraction := range validInteractions {
@@ -344,8 +361,23 @@ func main() {
 			}
 		}
 
+		if _, ok := player.Inventory["other-lanyard"]; ok {
+			player.TriggerEvent(grumpyRosie)
+			gameOver = true
+		}
+
+		if gameOver {
+			fmt.Println("Thank you for playing!")
+			break
+		}
+
+		if !introductionShown {
+			fmt.Println(introduction)
+			introductionShown = true
+		}
 
 		fmt.Print("Enter command: ")
+
 
 		if scanner.Scan() {
 			input := scanner.Text()

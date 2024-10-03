@@ -235,7 +235,7 @@ func TestShowInventory(t *testing.T) {
 
 	// Assert
 	output := buf.String()
-	expectedOutput := fmt.Sprintf("Your inventory contains:\n- %s: %s Weight: %d\n", item.Name, item.Description, item.Weight)
+	expectedOutput := fmt.Sprintf("Available space: %d\nYour inventory contains:\n- %s: %s Weight: %d\n", player.AvailableWeight, item.Name, item.Description, item.Weight)
 
 	if output != expectedOutput {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
@@ -246,7 +246,7 @@ func TestShowInventoryIsEmpty(t *testing.T) {
 	// Arrange
 	room := Room{Items: make(map[string]*Item)}
 	
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), AvailableWeight: 30}
 
 	r, w, _ := os.Pipe()
 	defer r.Close()
@@ -266,7 +266,7 @@ func TestShowInventoryIsEmpty(t *testing.T) {
 
 	// Assert
 	output := buf.String()
-	expectedOutput := "Your inventory is empty.\n"
+	expectedOutput := fmt.Sprintf("Your inventory is empty.\nAvailable space: %d", player.AvailableWeight)
 
 	if output != expectedOutput {
 		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
