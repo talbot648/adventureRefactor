@@ -302,7 +302,7 @@ func TestShowRoom(t *testing.T) {
 	// Assert
 	output := buf.String()
 	expectedOutput := fmt.Sprintf(
-		"You are in %s: %s\nYou can approach:\n- %s\nThe room contains:\n- %s: %s Weight: %d",
+		"You are in %s\n\n%s\n\nYou can approach:\n- %s\n\nThe room contains:\n- %s: %s Weight: %d",
 		room.Name,
 		room.Description,
 		entity.Name,
@@ -345,7 +345,7 @@ func TestShowHiddenItems(t *testing.T) {
 	// Assert
 	output := buf.String()
 	expectedOutput := fmt.Sprintf(
-		"You are in %s: %s\nYou can approach:\n- %s\n",
+		"You are in %s\n\n%s\n\nYou can approach:\n- %s\n",
 		room.Name,
 		room.Description,
 		entity.Name,
@@ -385,7 +385,7 @@ func TestNotShowHiddenEntities(t *testing.T) {
 	// Assert
 	output := buf.String()
 	expectedOutput := fmt.Sprintf(
-		"You are in %s: %s\nThe room contains:\n- %s: %s Weight: %d\n",
+		"You are in %s\n\n%s\n\nThe room contains:\n- %s: %s Weight: %d\n",
 		room.Name,
 		room.Description,
 		item.Name,

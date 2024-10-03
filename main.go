@@ -145,10 +145,10 @@ func (p *Player) ShowInventory() {
 }
 
 func (p *Player) ShowRoom() {
-    fmt.Printf("You are in %s: %s\n", p.CurrentRoom.Name, p.CurrentRoom.Description)
+    fmt.Printf("You are in %s\n\n%s\n", p.CurrentRoom.Name, p.CurrentRoom.Description)
     
 	if p.EntitiesArePresent() {
-		fmt.Println("You can approach:")
+		fmt.Println("\nYou can approach:")
 		for _, entity := range p.CurrentRoom.Entities {
 			if !entity.Hidden{
 				fmt.Printf("- %s\n", entity.Name)
@@ -156,7 +156,7 @@ func (p *Player) ShowRoom() {
 		}
 	}
     if p.ItemsArePresent() {
-        fmt.Println("The room contains:")
+        fmt.Println("\nThe room contains:")
         for itemName, item := range p.CurrentRoom.Items {
 			if !item.Hidden {
 				fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
@@ -206,7 +206,7 @@ func (p *Player) Leave() {
 		p.CurrentEntity = nil
 		p.ShowRoom()
 	} else {
-		fmt.Printf("You have not approached anything. If you wish to leave the game, use the exit command.\n")
+		fmt.Println("You have not approached anything. If you wish to leave the game, use the exit command.")
 	}
 }
 
