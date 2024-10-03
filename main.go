@@ -78,8 +78,7 @@ func (e *Entity) GetDescription() string {
 
 func (p *Player) Move(direction string) {
 	if p.CurrentEntity != nil {
-		fmt.Printf("You have to leave %s before moving!\n", p.CurrentEntity.Name)
-		return
+		p.CurrentEntity = nil
 	}
 	if newRoom, ok := p.CurrentRoom.Exits[direction]; ok {
 		p.CurrentRoom = newRoom
@@ -151,7 +150,9 @@ func (p *Player) ShowRoom() {
 	if p.EntitiesArePresent() {
 		fmt.Println("You can approach:")
 		for _, entity := range p.CurrentRoom.Entities {
-			fmt.Printf("- %s\n", entity.Name)
+			if !entity.Hidden{
+				fmt.Printf("- %s\n", entity.Name)
+			}
 		}
 	}
     if p.ItemsArePresent() {
@@ -189,8 +190,7 @@ func (p *Player) EntitiesArePresent() bool {
 
 func (p *Player) Approach(entityName string) {
 	if p.CurrentEntity != nil {
-		fmt.Printf("You have to leave %s before you can do that!\n", p.CurrentEntity.Name)
-		return
+		p.CurrentEntity = nil
 	}
 	if entity, ok := p.CurrentRoom.Entities[entityName]; ok && !entity.Hidden{
 

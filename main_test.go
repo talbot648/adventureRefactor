@@ -562,7 +562,7 @@ func TestDisengageEntity(t *testing.T) {
     }
 }
 
-func TestEngagedPlayerCannotMove(t *testing.T) {
+func TestPlayerMoveDisengageEntity(t *testing.T) {
 	//Arrange
 	room1 := Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*Room), Entities: make(map[string]*Entity)}
     room2 := Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*Room), Entities: make(map[string]*Entity)}
@@ -572,15 +572,15 @@ func TestEngagedPlayerCannotMove(t *testing.T) {
 	
 	entity := Entity{Name: "Entity", Description: "This is an entity"}
 	room1.Entities[entity.Name] = &entity
-	player := Player{CurrentRoom: &room1}
+	player := Player{CurrentRoom: &room1, CurrentEntity: nil}
 
 	//Act
 	player.Approach(entity.Name)
 	player.Move("north")
 
 	//Assert
-	if player.CurrentRoom.Name != room1.Name {
-		t.Errorf("Expected player's current room to remain %s, got %s", room1.Name, player.CurrentRoom.Name)
+	if player.CurrentEntity != nil {
+		t.Errorf("Expected player's current entity to be nil, got %s", player.CurrentEntity.Name)
 	}
 }
 
@@ -600,8 +600,8 @@ func TestEngagedPlayerCannotEngageOtherEntities(t *testing.T) {
 	player.Approach(entity2.Name)
 
 	//Assert
-	if player.CurrentEntity.Name != entity1.Name {
-		t.Errorf("Expected player's current room to remain %s, got %s", entity1.Name, player.CurrentEntity.Name)
+	if player.CurrentEntity.Name != entity2.Name {
+		t.Errorf("Expected player's current entity to be %s, got %s", entity2.Name, player.CurrentEntity.Name)
 	}
 }
 
