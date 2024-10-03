@@ -146,24 +146,36 @@ func (p *Player) ShowInventory() {
 
 func (p *Player) ShowRoom() {
     fmt.Printf("You are in %s\n\n%s\n", p.CurrentRoom.Name, p.CurrentRoom.Description)
-    
+
 	if p.EntitiesArePresent() {
-		fmt.Println("\nYou can approach:")
-		for _, entity := range p.CurrentRoom.Entities {
-			if !entity.Hidden{
-				fmt.Printf("- %s\n", entity.Name)
+			fmt.Println("\nYou can approach:")
+			for _, entity := range p.CurrentRoom.Entities {
+				switch {
+				case p.CurrentEntity != nil:
+					if entity.Name == p.CurrentEntity.Name {
+						fmt.Printf("- %s (approached)\n", entity.Name)
+					} else if !entity.Hidden{
+						fmt.Printf("- %s\n", entity.Name)
+					}
+				case p.CurrentEntity == nil:
+					if !entity.Hidden{
+						fmt.Printf("- %s\n", entity.Name)
+					}
+				}
+			}
+		}
+		
+	if p.ItemsArePresent() {
+			fmt.Println("\nThe room contains:")
+			for itemName, item := range p.CurrentRoom.Items {
+				if !item.Hidden {
+					fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
+				}
 			}
 		}
 	}
-    if p.ItemsArePresent() {
-        fmt.Println("\nThe room contains:")
-        for itemName, item := range p.CurrentRoom.Items {
-			if !item.Hidden {
-				fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
-			}
-        }
-    }
-}
+
+	
 
 func (p *Player) ItemsArePresent() bool {
 	if len(p.CurrentRoom.Items) != 0 {
