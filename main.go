@@ -280,7 +280,7 @@ func updateDescription(d Describable, newDescription string) {
 }
 
 func showCommands() {
-	fmt.Println("-exit -> quits the game\n\n-commands -> shows the commands\n\n-look -> shows the content of the room.\n\n-approach <entity> -> to approach an entity\n\n-leave -> to leave an entity\n\n-inventory -> shows items in the inventory\n\n-take <item> -> to take an item\n\n-drop <item> -> tro drop an item\n\n-use <item> -> to use a certain item\n\n-move <direction> -> to move to a different room\n\n-map -> shows the directions you can take")
+	fmt.Println("-exit -> quits the game\n\n-commands -> shows the commands\n\n-look -> shows the content of the room.\n\n-approach <entity> -> to approach an entity\n\n-leave -> to leave an entity\n\n-inventory -> shows items in the inventory\n\n-take <item> -> to take an item into your inventory\n\n-drop <item> -> to drop an item from your inventory and move it to the current room\n\n-use <item> -> to make use of a certain item when you approach an entity\n\n-move <direction> -> to move to a different room\n\n-map -> shows the directions you can take")
 }
 
 func main() {
@@ -307,32 +307,36 @@ func main() {
 		Exits:      make(map[string]*Room),
 	}
 
-	terminalRoom := Room{
-		Name:        "Server Room",
+	codingLab := Room{
+		Name:        "Coding Lab",
 		Description: "A dark room filled with server racks and a single, locked terminal.",
 		Items:      make(map[string]*Item),
 		Entities:   make(map[string]*Entity),
 		Exits:      make(map[string]*Room),
 	}
 
-	staffRoom.Exits["north"] = &terminalRoom
-	terminalRoom.Exits["south"] = &staffRoom
+	staffRoom.Exits["south"] = &codingLab
+	codingLab.Exits["north"] = &staffRoom
 
 	rosie := Entity{Name: "rosie", Description: "Ugh, what? Sorry, I can't think straight without a brew. Get me some tea, and then we'll talk...", Hidden: false}
 	kettle := Entity{Name: "kettle", Description: "You set the kettle to boil, brewing the strongest cup of tea you've ever made. A comforting aroma fills the room as the tea is now ready. (tea can now be found in the room)", Hidden: false}
-	sofa := Entity{Name: "sofa", Description: "You come across one of your fellow academy students fast asleep on the sofa. Next to them, their lanyard lies carelessly within reach. You know you shouldn't take it, but the temptation lingers... (other-lanyard can now be found in the room)", Hidden: false}
-	terminal := Entity{Name: "terminal", Description: "A locked terminal. It won't open without a key.", Hidden: false}
+	sofa := Entity{Name: "sofa", Description: "You come across one of your fellow academy students fast asleep on the sofa. Next to them, their lanyard lies carelessly within reach. You know you shouldn't take it, but the temptation lingers... (stolen-lanyard can now be found in the room)", Hidden: false}
 	tea := Item{Name: "tea", Description: "A steaming cup of Yorkshire tea, rich and comforting.", Weight: 2, Hidden: true}
 	lanyard := Item{Name: "lanyard", Description: "Your lanyard, a key to unlocking any door within the building.", Hidden: true}
-	otherLanyard := Item{Name: "other-lanyard", Description: "A lanyard, a key to unlocking any door within the building.", Hidden: true}
+	stolenLanyard := Item{Name: "stolen-lanyard", Description: "A lanyard, a key to unlocking any door within the building.", Hidden: true}
+	computer := Entity{Name: "computer", Description: "Alan's computer. You need the password to get in.", Hidden: false}
+	alan := Entity{Name: "alan", Description: "Oh you are finally here... What are you waiting for, crack on with the code. The computer is over there...\nWhat? you don't know the password? Oh right... I can't say what it is, but I can't tell you what is not: it's definitely not waterfall!", Hidden: false}
+	agileManifesto := Entity{Name: "agile-manifesto", Description: "", Hidden: false}
 
 	staffRoom.Items[tea.Name] = &tea
 	staffRoom.Items[lanyard.Name] = &lanyard
-	staffRoom.Items[otherLanyard.Name] = &otherLanyard
+	staffRoom.Items[stolenLanyard.Name] = &stolenLanyard
 	staffRoom.Entities[rosie.Name] = &rosie
 	staffRoom.Entities[kettle.Name] = &kettle
 	staffRoom.Entities[sofa.Name] = &sofa
-	terminalRoom.Entities[terminal.Name] = &terminal
+	codingLab.Entities[computer.Name] = &computer
+	codingLab.Entities[alan.Name] = &alan
+	codingLab.Entities[agileManifesto.Name] = &agileManifesto
 
 	player := Player{
 		CurrentRoom:     &staffRoom,
@@ -346,7 +350,7 @@ func main() {
 	for {
 
 		if player.CurrentEntity != nil && player.CurrentEntity.Name == "sofa" {
-			otherLanyard.Hidden = false
+			stolenLanyard.Hidden = false
 			sofa.SetDescription("One of your fellow academy students. Still asleep on the sofa.")
 		}
 
@@ -362,7 +366,7 @@ func main() {
 			}
 		}
 
-		if _, ok := player.Inventory["other-lanyard"]; ok {
+		if _, ok := player.Inventory["stolen-lanyard"]; ok {
 			player.TriggerEvent(grumpyRosie)
 			gameOver = true
 		}
