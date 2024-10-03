@@ -295,7 +295,39 @@ func main() {
 			EntityName: "rosie",
 			Event:      &Event{Description: "get-your-lanyard", Outcome: "Cheers! I needed that... by the way, where is your lanyard? I must have forgotten to give it to you.\nYou'll need that to move between rooms, here it is.\n\n(lanyard can now be found in the room).\n", Triggered: false},
 		},
+		{
+			ItemName: "first-plate",
+			EntityName: "dishwasher",
+			Event: &Event{Description: "first-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+		},
+		{
+			ItemName: "second-plate",
+			EntityName: "dishwasher",
+			Event: &Event{Description: "second-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+		},
+		{
+			ItemName: "third-plate",
+			EntityName: "dishwasher",
+			Event: &Event{Description: "third-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+		},
+		{
+			ItemName: "fourth-plate",
+			EntityName: "dishwasher",
+			Event: &Event{Description: "fourth-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+		},
+		{
+			ItemName: "fifth-plate",
+			EntityName: "dishwasher",
+			Event: &Event{Description: "fifth-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+		},
+		{
+			ItemName: "sixth-plate",
+			EntityName: "dishwasher",
+			Event: &Event{Description: "sixth-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+		},
 	}
+
+	dishwasherChallengeWon := &Event{Description: "dishwasher-loaded", Outcome: "You load the dirty plates into the dishwasher and switch it on, a feeling of being used washing over you.\nThis challenge felt less like teamwork and more like being roped into someone else's mess.\nWith a sigh, you decide to head back to Alan to see if this effort has truly led you to victory...\n", Triggered: false}
 
 	grumpyRosie := &Event{Description: "rosie-is-grumpy", Outcome: "Rosie caught you in the act of swiping a lanyard from a fellow student.\nYou have made Rosie grumpy and you've lost the game.\n", Triggered: false}
 
@@ -319,8 +351,18 @@ func main() {
 		Exits:      make(map[string]*Room),
 	}
 
+	storageRoom := Room{
+		Name:        "storage-room",
+		Description: "The room is dimly lit, with shelves lining the walls, stacked high with forgotten equipment, unused tools, and half-empty boxes. The faint smell of dust lingers in the air. In the corner, a rusty trolley leans against the wall, piled with tangled cables and discarded keyboards.",
+		Items:      make(map[string]*Item),
+		Entities:   make(map[string]*Entity),
+		Exits:      make(map[string]*Room),
+	}
+
 	staffRoom.Exits["south"] = &codingLab
 	codingLab.Exits["north"] = &staffRoom
+	codingLab.Exits["east"] = &storageRoom
+	storageRoom.Exits["west"] = &codingLab
 
 	rosie := Entity{Name: "rosie", Description: "Ugh, what? Sorry, I can't think straight without a brew. Get me some tea, and then we'll talk...", Hidden: false}
 	kettle := Entity{Name: "kettle", Description: "You set the kettle to boil, brewing the strongest cup of tea you've ever made. A comforting aroma fills the room as the tea is now ready.\n\n(tea can now be found in the room)\n", Hidden: false}
@@ -331,6 +373,14 @@ func main() {
 	computer := Entity{Name: "computer", Description: "Alan's computer. You need the password to get in.\n\nEnter the password:\n", Hidden: false}
 	alan := Entity{Name: "alan", Description: "Oh, you've finally made it... What are you waiting for, crack on with the code. The computer is right there...\nWhat's that? You don't know the password? Oh right... it's nine letters, but I can't tell you what it is, although I can tell you what is not: it's definitely not waterfall!", Hidden: false}
 	agileManifesto := Entity{Name: "agile-manifesto", Description: "A large, framed document hangs prominently on the wall, its edges slightly frayed\nYou can almost feel the energy of past brainstorming sessions in the air as you read the four key values:\n\nIndividuals and Interactions over processes and tools.\n\nWorking Software over comprehensive documentation.\n\nCustomer Collaboration over contract negotiation.\n\nResponding To Change over following a plan.\n", Hidden: false}
+	desk := Entity{Name: "desk", Description: "You approach the desk and spot a messy pile of dirty plates, stacked haphazardly. You think to yourself that somebody was too lazy to load the dishwasher.\nThe stack is too heavy to carry all the plates at once, and taking plates from the centre or bottom of the stack could pose a risk...\n\n(stack of plates can now be found in the room)\n\n", Hidden: true}
+	dishwasher := Entity{Name: "dishwasher", Description: "A stainless steel dishwasher sits quietly in the corner, its door slightly ajar.\nThe faint scent of soap lingers, and the racks inside are half-empty, waiting for the next load of dirty dishes to be placed inside.\nIt hums faintly, as if anticipating the task it was built for.", Hidden: true}
+	firstPlate := Item{Name: "first-plate", Description: "The plate on top of the stack.", Weight: 6, Hidden: true}
+	secondPlate := Item{Name: "second-plate", Description: "The second plate of the stack.", Weight: 6, Hidden: true}
+	thirdPlate := Item{Name: "third-plate", Description: "The third plate of the stack.", Weight: 6, Hidden: true}
+	fourthPlate := Item{Name: "fourth-plate", Description: "The fourth plate of the stack.", Weight: 6, Hidden: true}
+	fifthPlate := Item{Name: "fifth-plate", Description: "The fifth plate of the stack.", Weight: 6, Hidden: true}
+	sixthPlate := Item{Name: "sixth-plate", Description: "The plate at the bottom of the stack.", Weight: 6, Hidden: true}
 
 	staffRoom.Items[tea.Name] = &tea
 	staffRoom.Items[lanyard.Name] = &lanyard
@@ -338,16 +388,24 @@ func main() {
 	staffRoom.Entities[rosie.Name] = &rosie
 	staffRoom.Entities[kettle.Name] = &kettle
 	staffRoom.Entities[sofa.Name] = &sofa
+	staffRoom.Entities[dishwasher.Name] = &dishwasher
 	codingLab.Entities[computer.Name] = &computer
 	codingLab.Entities[alan.Name] = &alan
 	codingLab.Entities[agileManifesto.Name] = &agileManifesto
+	codingLab.Entities[desk.Name] = &desk
+	codingLab.Items[firstPlate.Name] = &firstPlate
+	codingLab.Items[secondPlate.Name] = &secondPlate
+	codingLab.Items[thirdPlate.Name] = &thirdPlate
+	codingLab.Items[fourthPlate.Name] = &fourthPlate
+	codingLab.Items[fifthPlate.Name] = &fifthPlate
+	codingLab.Items[sixthPlate.Name] = &sixthPlate
 
 	isAttemptingPassword := false
 
 	player := Player{
 		CurrentRoom:     &staffRoom,
 		Inventory:       make(map[string]*Item),
-		AvailableWeight: 30,
+		AvailableWeight: 20,
 		CurrentEntity:   nil,
 	}
 
@@ -365,6 +423,16 @@ func main() {
 			kettle.SetDescription("A kettle — essential for survival, impossible to function without one nearby.");
 		}
 
+		if player.CurrentEntity != nil && player.CurrentEntity.Name == "desk" {
+			firstPlate.Hidden = false
+			secondPlate.Hidden = false
+			thirdPlate.Hidden = false
+			fourthPlate.Hidden = false
+			fifthPlate.Hidden = false
+			sixthPlate.Hidden = false
+			desk.SetDescription("Despite the disarray, it's clear this desk sees frequent use, with just enough space left to get work done.")
+		}
+
 		for _, validInteraction := range validInteractions {
 			if validInteraction.Event.Description == "get-your-lanyard" && validInteraction.Event.Triggered {
 				lanyard.Hidden = false
@@ -372,6 +440,19 @@ func main() {
 			}
 		}
 
+		dishwasherLoaded := true
+		for _, validInteraction := range validInteractions {
+			if strings.HasSuffix(validInteraction.ItemName, "plate") && !validInteraction.Event.Triggered {
+				dishwasherLoaded = false
+				break
+			}
+		}
+
+		if !dishwasherChallengeWon.Triggered {
+			if dishwasherLoaded {
+				player.TriggerEvent(dishwasherChallengeWon)
+			}
+		}
 
 		if _, ok := player.Inventory["abandoned-lanyard"]; ok {
 			player.TriggerEvent(grumpyRosie)
@@ -406,9 +487,11 @@ func main() {
 				if input == computerPassword {
 					clearScreen()
 					player.TriggerEvent(unlockComputer)
-					computer.SetDescription("The computer is now ready for use.")
-					alan.SetDescription("You guessed the password! Wonderful.")
+					computer.SetDescription("function completeTask(pile)\n   if pile == 0:\n      return 'Task Complete'\n   else:\n      completeTask(pile - 1)\n")
+					alan.SetDescription("You guessed the password! Wonderful... You should be able to find an open file with a recursive function on it.\nFollow its instructions and you will win the challenge!")
 					isAttemptingPassword = false
+					desk.Hidden = false
+					dishwasher.Hidden = false
 				} else if input == "leave" {
 					isAttemptingPassword = false
 					} else {
