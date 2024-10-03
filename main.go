@@ -109,7 +109,7 @@ func (p *Player) Take(itemName string) {
 	item, ok := p.CurrentRoom.Items[itemName]
 	switch {
 	case !ok || item.Hidden:
-		fmt.Printf("%s not found in the room.\n", itemName)
+		fmt.Printf("You can't take %s\n", itemName)
 		return
 	case p.AvailableWeight < item.Weight:
 		fmt.Println("Weight limit reached! Please drop an item before taking more.")
@@ -225,7 +225,7 @@ func (p *Player) Approach(entityName string) {
 		p.CurrentEntity = entity
 		fmt.Println(entity.Description)
 	} else {
-		fmt.Printf("%s not found in the room.\n", entityName)
+		fmt.Printf("You can't approach %s.\n", entityName)
 	}
 }
 
@@ -284,7 +284,7 @@ func showCommands() {
 }
 
 func main() {
-	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape? The clock is ticking...\n\nif at any point you feel lost, type 'commands' to display the list of all commands.\nThe command 'look' is always useful to get your bearings and see the options available to you."
+	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape?\nOh and remember... You don't want to make rosie grumpy! So don't do anything crazy.\n\nif at any point you feel lost, type 'commands' to display the list of all commands.\nThe command 'look' is always useful to get your bearings and see the options available to you."
 
 	gameOver := false
 	introductionShown:= false
@@ -299,7 +299,7 @@ func main() {
 
 	grumpyRosie := &Event{Description: "rosie-is-grumpy", Outcome: "Rosie caught you in the act of swiping a lanyard from a fellow student.\nYou have made Rosie grumpy and you've lost the game.\n", Triggered: false}
 
-	unlockComputer := &Event{Description: "computer-is-unlocked", Outcome: "You enter the password, holding your breath. Yes! The screen flickers to life.\nyou've unlocked the computer and now have full access.\n\nApproach Alan for the next challenge.\n", Triggered: false}
+	unlockComputer := &Event{Description: "computer-is-unlocked", Outcome: "You enter the password, holding your breath. Yes! The screen flickers to life.\nyou've unlocked the computer and now have full access.\n\nYou should approach Alan to find out what's next...\n", Triggered: false}
 
 	computerPassword := "iiwsccrtc"
 
@@ -406,6 +406,8 @@ func main() {
 				if input == computerPassword {
 					clearScreen()
 					player.TriggerEvent(unlockComputer)
+					computer.SetDescription("The computer is now ready for use.")
+					alan.SetDescription("You guessed the password! Wonderful.")
 					isAttemptingPassword = false
 				} else if input == "leave" {
 					isAttemptingPassword = false
@@ -452,10 +454,13 @@ func main() {
 				if len(args) > 0 {
 					player.Approach(args[0])
 
-					if player.CurrentEntity!= nil && player.CurrentEntity.Name == "computer" {
-                        isAttemptingPassword = true
-                    }
-                } else {
+					if !unlockComputer.Triggered {
+						if player.CurrentEntity!= nil && player.CurrentEntity.Name == "computer" {
+							isAttemptingPassword = true
+					}
+                }
+                
+				} else {
 					fmt.Println("Specify an entity to approach.")
 				}
 			case "use":
