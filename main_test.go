@@ -345,7 +345,7 @@ func TestShowRoomEngagedEntity(t *testing.T) {
 	// Assert
 	output := buf.String()
 	expectedOutput := fmt.Sprintf(
-		"You are in %s\n\n%s\n\nYou can approach:\n- %s (approached)\n\nThe room contains:\n- %s: %s Weight: %d",
+		"You are in %s\n\n%s\n\nYou can approach:\n- %s (currently approached)\n\nThe room contains:\n- %s: %s Weight: %d",
 		room.Name,
 		room.Description,
 		entity.Name,
@@ -692,10 +692,9 @@ func TestValidUseItem(t *testing.T) {
 	room.Entities[door.Name] = &door
 	room.Items[key.Name] = &key
 	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
-	player.Inventory[key.Name] = &key
 	
 	//Act
-
+	player.Take("key")
 	player.Approach("door")
 	player.Use("key", "door")
 
@@ -703,7 +702,14 @@ func TestValidUseItem(t *testing.T) {
 	if !validInteractions[0].Event.Triggered {
 		t.Errorf("Expected event to be true for triggered, got false")
 	}
+	if _, ok := player.Inventory["key"]; ok {
+		t.Errorf("Expected used item to have been removed from inventory")
+	}
+	if _, ok := player.CurrentRoom.Items["key"]; ok {
+		t.Errorf("Expected used item to not be present in the room")
+	}
 }
+
 
 func TestInvalidUseItem(t *testing.T) {
 	//Arrange

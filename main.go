@@ -1,8 +1,24 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"os/exec"
+	"runtime"
+	"strings"
 )
+
+func clearScreen() {
+    var cmd *exec.Cmd
+    if runtime.GOOS == "windows" {
+        cmd = exec.Command("cmd", "/c", "cls")
+    } else {
+        cmd = exec.Command("clear")
+    }
+    cmd.Stdout = os.Stdout
+    cmd.Run()
+}
 
 type Describable interface {
 	SetDescription(description string)
@@ -153,7 +169,7 @@ func (p *Player) ShowRoom() {
 				switch {
 				case p.CurrentEntity != nil:
 					if entity.Name == p.CurrentEntity.Name {
-						fmt.Printf("- %s (approached)\n", entity.Name)
+						fmt.Printf("- %s (currently approached)\n", entity.Name)
 					} else if !entity.Hidden{
 						fmt.Printf("- %s\n", entity.Name)
 					}
@@ -238,6 +254,7 @@ func (p *Player) Use(itemName string, target string) {
 				for _, interaction := range validInteractions {
 					if interaction.ItemName == itemName && interaction.EntityName == target {
 						p.TriggerEvent(interaction.Event)
+						delete(p.Inventory, itemName)
 						return
 					}
 				}
@@ -265,5 +282,154 @@ func showCommands() {
 	fmt.Println("-exit -> quits the game\n\n-commands -> shows the commands\n\n-look -> shows the content of the room.\n\n-approach <entity> -> to approach an entity\n\n-leave -> to leave an entity\n\n-inventory -> shows items in the inventory\n\n-take <item> -> to take an item\n\n-drop <item> -> tro drop an item\n\n-use <item> -> to use a certain item\n\n-move <direction> -> to move to a different room\n\n-map -> shows the directions you can take")
 }
 
-func main() {}
+func main() {
+	validInteractions = []*Interaction{
+		{
+			ItemName:   "tea",
+			EntityName: "rosie",
+			Event:      &Event{Description: "get-your-lanyard", Outcome: "Cheers! I needed that... by the way, where is your lanyard? You'll need that to move between rooms, here it is. (lanyard can now be found in the room).\n", Triggered: false},
+		},
+	}
+
+	staffRoom := Room{
+		Name:        "Break Room",
+		Description: "A cozy lounge where both academy students and tutors can take a break and socialise.",
+		Items:      make(map[string]*Item),
+		Entities:   make(map[string]*Entity),
+		Exits:      make(map[string]*Room),
+	}
+
+	terminalRoom := Room{
+		Name:        "Server Room",
+		Description: "A dark room filled with server racks and a single, locked terminal.",
+		Items:      make(map[string]*Item),
+		Entities:   make(map[string]*Entity),
+		Exits:      make(map[string]*Room),
+	}
+
+	staffRoom.Exits["north"] = &terminalRoom
+	terminalRoom.Exits["south"] = &staffRoom
+
+	rosie := Entity{Name: "rosie", Description: "Uh what? Sorry, I need a brew before I can speak to anybody today...", Hidden: false}
+	kettle := Entity{Name: "kettle", Description: "You put the kettle on and make the strongest tea you have ever made. (tea can now be found in the room)", Hidden: false}
+	terminal := Entity{Name: "terminal", Description: "A locked terminal. It won't open without a key.", Hidden: false}
+	tea := Item{Name: "tea", Description: "A warm cup of yorkshire tea.", Hidden: true}
+	lanyard := Item{Name: "lanyard", Description: "Your lanyard. It can unlock any door in the building.", Hidden: true}
+
+	staffRoom.Items[tea.Name] = &tea
+	staffRoom.Items[lanyard.Name] = &lanyard
+	staffRoom.Entities[rosie.Name] = &rosie
+	staffRoom.Entities[kettle.Name] = &kettle
+	terminalRoom.Entities[terminal.Name] = &terminal
+
+	player := Player{
+		CurrentRoom:     &staffRoom,
+		Inventory:       make(map[string]*Item),
+		AvailableWeight: 30,
+		CurrentEntity:   nil,
+	}
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		if player.CurrentEntity != nil && player.CurrentEntity.Name == "kettle" {
+			tea.Hidden = false
+			kettle.SetDescription("A kettle. Impossible to work without one nearby.");
+		}
+
+		for _, validInteraction := range validInteractions {
+			if validInteraction.Event.Description == "get-your-lanyard" && validInteraction.Event.Triggered {
+				lanyard.Hidden = false
+				rosie.SetDescription("Can I help with anything else?")
+			}
+		}
+
+
+		fmt.Print("Enter command: ")
+
+		if scanner.Scan() {
+			input := scanner.Text()
+			input = strings.TrimSpace(input)
+			input = strings.ToLower(input)
+
+			if input == "exit" {
+				clearScreen()
+				fmt.Println("Thank you for playing!")
+				break
+			}
+
+			parts := strings.Fields(input)
+			if len(parts) == 0 {
+				continue
+			}
+
+			command := (parts[0])
+			args := parts[1:]
+
+			switch command {
+			case "commands":
+				clearScreen()
+				showCommands()
+			case "look":
+				clearScreen()
+				player.ShowRoom()
+			case "take":
+				clearScreen()
+				if len(args) > 0 {
+					player.Take(args[0])
+				} else {
+					fmt.Println("Specify an item to take.")
+				}
+			case "drop":
+				clearScreen()
+				if len(args) > 0 {
+					player.Drop(args[0])
+				} else {
+					fmt.Println("Specify an item to drop.")
+				}
+			case "inventory":
+				clearScreen()
+				player.ShowInventory()
+			case "approach":
+				clearScreen()
+				if len(args) > 0 {
+					player.Approach(args[0])
+				} else {
+					fmt.Println("Specify an entity to approach.")
+				}
+			case "use":
+				clearScreen()
+				if len(args) > 0 {
+					if player.CurrentEntity == nil {
+						player.Use(args[0], "unspecified_entity")
+					} else {
+						player.Use(args[0], player.CurrentEntity.Name)
+					}
+				} else {
+					fmt.Println("Specify an item to use.")
+				}
+			case "leave":
+				clearScreen()
+				player.Leave()
+			case "move":
+				clearScreen()
+				if _, ok := player.Inventory["lanyard"]; ok {
+					if len(args) > 0 {
+						player.Move(args[0])
+					} else {
+						fmt.Println("Specify a direction to move (e.g., north).")
+					}
+				} else {
+					fmt.Println("Doors are shut for you if you don't have a lanyard.")
+				}
+			case "map":
+				clearScreen()
+				player.ShowMap()
+			default:
+				clearScreen()
+				fmt.Println("Unknown command:", command)
+			}
+		}
+	}
+}
 
