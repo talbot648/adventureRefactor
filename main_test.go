@@ -770,3 +770,28 @@ func TestUseAbsentEntity(t *testing.T) {
 		t.Errorf("Expected event to be false for triggered, got true")
 	}
 }
+
+func TestShowCommands(t *testing.T) {
+	r, w, _ := os.Pipe()
+	defer r.Close()
+	defer w.Close()
+	
+	original := os.Stdout
+	os.Stdout = w
+
+	showCommands()
+
+	w.Close()
+	os.Stdout = original
+
+	var buf bytes.Buffer
+	buf.ReadFrom(r)
+
+	// Assert
+	output := buf.String()
+	expectedOutput := fmt.Sprintln("-exit -> quits the game\n\n-commands -> shows the commands\n\n-look -> shows the content of the room.\n\n-approach <entity> -> to approach an entity\n\n-leave -> to leave an entity\n\n-inventory -> shows items in the inventory\n\n-take <item> -> to take an item\n\n-drop <item> -> tro drop an item\n\n-use <item> -> to use a certain item\n\n-move <direction> -> to move to a different room\n\n-map -> shows the directions you can take")
+
+	if output != expectedOutput {
+		t.Errorf("Expected output:\n%s\nGot:\n%s", expectedOutput, output)
+	}
+}

@@ -157,7 +157,7 @@ func (p *Player) ShowRoom() {
 					} else if !entity.Hidden{
 						fmt.Printf("- %s\n", entity.Name)
 					}
-				case p.CurrentEntity == nil:
+				default:
 					if !entity.Hidden{
 						fmt.Printf("- %s\n", entity.Name)
 					}
@@ -259,6 +259,10 @@ func (p *Player) TriggerEvent(event *Event) {
 
 func updateDescription(d Describable, newDescription string) {
 	d.SetDescription(newDescription)
+}
+
+func showCommands() {
+	fmt.Println("-exit -> quits the game\n\n-commands -> shows the commands\n\n-look -> shows the content of the room.\n\n-approach <entity> -> to approach an entity\n\n-leave -> to leave an entity\n\n-inventory -> shows items in the inventory\n\n-take <item> -> to take an item\n\n-drop <item> -> tro drop an item\n\n-use <item> -> to use a certain item\n\n-move <direction> -> to move to a different room\n\n-map -> shows the directions you can take")
 }
 
 func main() {}
