@@ -284,7 +284,7 @@ func showCommands() {
 }
 
 func main() {
-	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape?\nOh and remember... You don't want to make rosie grumpy! So don't do anything crazy.\n\nif at any point you feel lost, type 'commands' to display the list of all commands.\nThe command 'look' is always useful to get your bearings and see the options available to you."
+	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape?\nOh and remember... You don't want to make Rosie grumpy! So don't do anything crazy.\n\nif at any point you feel lost, type 'commands' to display the list of all commands.\nThe command 'look' is always useful to get your bearings and see the options available to you.\nThe command 'exit' will make you quit the game at any time. Make sure you do mean to use it, or you will inadvertently lose oll of your progress!"
 
 	gameOver := false
 	introductionShown:= false
@@ -298,32 +298,32 @@ func main() {
 		{
 			ItemName: "first-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "first-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+			Event: &Event{Description: "first-plate-loaded", Outcome: "You loaded the first plate into the dishwasher.", Triggered: false},
 		},
 		{
 			ItemName: "second-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "second-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+			Event: &Event{Description: "second-plate-loaded", Outcome: "You loaded the second plate into the dishwasher.", Triggered: false},
 		},
 		{
 			ItemName: "third-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "third-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+			Event: &Event{Description: "third-plate-loaded", Outcome: "You loaded the third plate into the dishwasher.", Triggered: false},
 		},
 		{
 			ItemName: "fourth-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "fourth-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+			Event: &Event{Description: "fourth-plate-loaded", Outcome: "You loaded the fourth plate into the dishwasher.", Triggered: false},
 		},
 		{
 			ItemName: "fifth-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "fifth-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+			Event: &Event{Description: "fifth-plate-loaded", Outcome: "You loaded the fifth plate into the dishwasher.", Triggered: false},
 		},
 		{
 			ItemName: "sixth-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "sixth-plate-loaded", Outcome: "You loaded the plate into the dishwasher.", Triggered: false},
+			Event: &Event{Description: "sixth-plate-loaded", Outcome: "You loaded the sixth plate into the dishwasher.", Triggered: false},
 		},
 	}
 
@@ -334,6 +334,8 @@ func main() {
 	unlockComputer := &Event{Description: "computer-is-unlocked", Outcome: "You enter the password, holding your breath. Yes! The screen flickers to life.\nyou've unlocked the computer and now have full access.\n\nYou should approach Alan to find out what's next...\n", Triggered: false}
 
 	computerPassword := "iiwsccrtc"
+
+	remainingPasswordAttempts := 10
 
 	staffRoom := Room{
 		Name:        "break-room",
@@ -370,8 +372,8 @@ func main() {
 	tea := Item{Name: "tea", Description: "A steaming cup of Yorkshire tea, rich and comforting.", Weight: 2, Hidden: true}
 	lanyard := Item{Name: "lanyard", Description: "Your lanyard, a key to unlocking any door within the building.", Weight: 1, Hidden: true}
 	abandonedLanyard := Item{Name: "abandoned-lanyard", Description: "An abandoned lanyard, a key to unlocking any door within the building.", Weight: 1, Hidden: true}
-	computer := Entity{Name: "computer", Description: "Alan's computer. You need the password to get in.\n\nEnter the password:\n", Hidden: false}
-	alan := Entity{Name: "alan", Description: "Oh, you've finally made it... What are you waiting for, crack on with the code. The computer is right there...\nWhat's that? You don't know the password? Oh right... it's nine letters, but I can't tell you what it is, although I can tell you what is not: it's definitely not waterfall!", Hidden: false}
+	computer := Entity{Name: "computer", Description: "Alan's computer. You need the password to get in.\n\nRemaining attempts: 10.\n\nType 'leave' to stop entering the password.\n\nEnter the password:\n", Hidden: false}
+	alan := Entity{Name: "alan", Description: "Oh, you've finally made it... What are you waiting for, crack on with the code. The computer is right there...\nWhat's that? You don't know the password? Hmm... I seem to have forgotten it myself, but I do recall it's nine letters long.\nAnd for the love of all that's good, it's definitely not 'waterfall'!", Hidden: false}
 	agileManifesto := Entity{Name: "agile-manifesto", Description: "A large, framed document hangs prominently on the wall, its edges slightly frayed\nYou can almost feel the energy of past brainstorming sessions in the air as you read the four key values:\n\nIndividuals and Interactions over processes and tools.\n\nWorking Software over comprehensive documentation.\n\nCustomer Collaboration over contract negotiation.\n\nResponding To Change over following a plan.\n", Hidden: false}
 	desk := Entity{Name: "desk", Description: "You approach the desk and spot a messy pile of dirty plates, stacked haphazardly. You think to yourself that somebody was too lazy to load the dishwasher.\nThe stack is too heavy to carry all the plates at once, and taking plates from the centre or bottom of the stack could pose a risk...\n\n(stack of plates can now be found in the room)\n\n", Hidden: true}
 	dishwasher := Entity{Name: "dishwasher", Description: "A stainless steel dishwasher sits quietly in the corner, its door slightly ajar.\nThe faint scent of soap lingers, and the racks inside are half-empty, waiting for the next load of dirty dishes to be placed inside.\nIt hums faintly, as if anticipating the task it was built for.", Hidden: true}
@@ -465,6 +467,7 @@ func main() {
 		}
 
 		if !introductionShown {
+			clearScreen()
 			fmt.Println(introduction)
 			introductionShown = true
 		}
@@ -483,19 +486,29 @@ func main() {
 				break
 			}
 
+			
+
 			if isAttemptingPassword {
+				if remainingPasswordAttempts == 1 && input != computerPassword{
+					clearScreen()
+					fmt.Println("Alan's computer is locked, halting your progress in the challenge. To top it off, you've made Rosie grumpy, as she'll now have to take the computer to IT.\n\nThank you for playing!")
+					break
+				}
 				if input == computerPassword {
 					clearScreen()
 					player.TriggerEvent(unlockComputer)
 					computer.SetDescription("function completeTask(pile)\n   if pile == 0:\n      return 'Task Complete'\n   else:\n      completeTask(pile - 1)\n")
-					alan.SetDescription("You guessed the password! Wonderful... You should be able to find an open file with a recursive function on it.\nFollow its instructions and you will win the challenge!")
+					alan.SetDescription("You've cracked the password! Impressive work... You should now see an open file containing a recursive function.\n\nFollow its instructions carefully, and you'll be one step closer to victory!\nBut, a word of caution: the task ahead is, well, a bit more hands-on than you might expect...")
 					isAttemptingPassword = false
 					desk.Hidden = false
 					dishwasher.Hidden = false
 				} else if input == "leave" {
 					isAttemptingPassword = false
 					} else {
-					fmt.Println("Incorrect password. Try again, or type 'leave' to stop entering the password.")
+					remainingPasswordAttempts--
+					clearScreen()
+					fmt.Printf("Incorrect password. Try again, or type 'leave' to stop entering the password.\n\nRemaining attempts: %d\n\n", remainingPasswordAttempts)
+					computer.SetDescription(fmt.Sprintf("Alan's computer. You need the password to get in.\nRemaining attempts: %d.\nType 'leave' to stop entering the password.\n\nEnter the password:\n", remainingPasswordAttempts))
 					continue
 				}
 			}
