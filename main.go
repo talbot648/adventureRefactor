@@ -377,7 +377,7 @@ func main() {
 
 	codingLab := Room{
 		Name:        "coding-lab",
-		Description: "A dark room filled with server racks and a single, locked terminal.",
+		Description: "A bright, tech-filled room with sleek workstations, whiteboards, and collaborative spaces.\nThe air buzzes with creativity as students code, share ideas, and tackle challenges together.",
 		Items:      make(map[string]*Item),
 		Entities:   make(map[string]*Entity),
 		Exits:      make(map[string]*Room),
