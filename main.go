@@ -414,9 +414,9 @@ func main() {
 	fifthPlate := Item{Name: "fifth-plate", Description: "The fifth plate of the stack.", Weight: 6, Hidden: true}
 	sixthPlate := Item{Name: "sixth-plate", Description: "The plate at the bottom of the stack.", Weight: 6, Hidden: true}
 	terminal := Entity{Name: "terminal", Description: "A sleek terminal sits on the desk, its screen displaying lines of code and system commands.\nThe keyboard, slightly worn, hints at frequent use.\nThis device is essential for executing tasks and accessing the building's network.\n\nEnter your commands below or type 'leave' to exit the terminal.\n\n", Hidden: true}
-	dan := Entity{Name: "dan", Description: "Congratulations on making it this far! I must say, I'm genuinely impressed. It appears I'm your final boss — muahahaha!\n...Oh, pardon my theatrics. Now, listen closely: the terminal holds the secret instructions to escape the building.\nYou only need two commands to access them. But here's the catch — you have just 10 minutes before the terminal locks, and we risk getting locked in this building for the entire night.\nTrust me, that would make Rosie very grumpy.\nLook around the building to find clues...\nWhat are you standing there for? Get to it!", Hidden: true}
+	dan := Entity{Name: "dan", Description: "Congratulations on making it this far! I must say, I'm genuinely impressed. It appears I'm your final boss — muahahaha!\n...Oh, pardon my theatrics. Now, listen closely: the terminal holds the secret instructions to escape the building.\nYou only need two commands to access them.\nLook around the building to find some clues...\nYes, I know, this actually the easiest task so far. If I am being totally honest, we just want to be done by 4pm...\nWhat are you standing there for? Get to it!\n", Hidden: true}
 	cd := Item{Name: "cd", Description: "A compact disc with '\\secret-files' written on it in bold letters.\nIt almost seems to call out to you, hinting at hidden knowledge.", Weight: 1, Hidden: false}
-	cat := Entity{Name: "cat", Description: "On one of the chairs, a fluffy cat lounges lazily, wearing a collar with a name tag that reads 'unlock-exits-instructions'\n\nAn odd name for a cat. You get the feeling that this feline is more than it seems, possibly guarding crucial information", Hidden: false}
+	cat := Entity{Name: "cat", Description: "On one of the chairs, a fluffy cat lounges lazily, wearing a collar with a name tag that reads 'unlock-exits-instructions.txt'\n\nAn odd name for a cat. You get the feeling that this feline is more than it seems, possibly guarding crucial information", Hidden: false}
 
 	staffRoom.Items[tea.Name] = &tea
 	staffRoom.Items[lanyard.Name] = &lanyard
@@ -441,6 +441,10 @@ func main() {
 	terminalRoom.Entities[dan.Name] = &dan
 
 	isAttemptingPassword := false
+
+	isAttemptingTerminal := false
+
+	IsFirstCommand := false
 
 	player := Player{
 		CurrentRoom:     &staffRoom,
@@ -493,6 +497,7 @@ func main() {
 				player.TriggerEvent(dishwasherChallengeWon)
 				alan.SetDescription("Ah, so you've managed to load the dishwasher! Splendid work — consider this challenge complete.\nI could have done it myself instead of writing that clever recursive function, but where's the fun in that?\nAfter all, they pay me for my intellect, not for doing the heavy lifting!\nBut I digress. You're free to proceed to the terminal room and speak with Dan for your final challenge.\nYou're doing an excellent job; keep it up!")
 				dan.Hidden = false
+				terminal.Hidden = false
 			}
 		}
 
@@ -553,6 +558,42 @@ func main() {
 				}
 			}
 
+			if isAttemptingTerminal {
+				if input == "leave" {
+					isAttemptingTerminal = false
+					clearScreen()
+					player.Leave()
+					continue
+				}
+			
+				if !IsFirstCommand {
+					if input == "cd /secret-files" {
+						clearScreen()
+						fmt.Println("The terminal displays:\n\n/secret-files/\n\nIt looks like you are on the right track.\nEnter the final command to win the game!\n\nType 'leave' to stop entering commands on the terminal.")
+						IsFirstCommand = true
+						terminal.SetDescription("A sleek terminal sits on the desk, its screen displaying lines of code and system commands.\nThe keyboard, slightly worn, hints at frequent use.\nThis device is essential for executing tasks and accessing the building's network.\n\nEnter your commands below or type 'leave' to exit the terminal.\n\nThe terminal displays:\n\n/secret-files/\n\nIt looks like you are on the right track.\nEnter the final command to win the game!\n\nType 'leave' to stop entering commands on the terminal.\n")
+						continue
+					} else {
+						clearScreen()
+						fmt.Printf("The terminal displays:\n\nbash: %s: command not found\n\nType 'leave' to stop entering commands on the terminal\n\n", input)
+						continue
+					}
+				} else {
+					if input == "cat unlock-exits-instructions.txt" {
+						clearScreen()
+						fmt.Println("As you execute the final command, the terminal whirs to life, and the screen fills with a flurry of colorful text.\nThe words 'Victory Achieved!' flash across the display, illuminating your face with a soft glow.\nYou feel a rush of adrenaline as the file containing the instructions to unlock the exits appears before you.\nFollowing the instructions carefully, you swiftly input the necessary commands, and with a satisfying beep, the locks on the exits click open.\nThe room is filled with the sound of machinery grinding to a halt as the doors swing wide.")
+						gameOver = true
+						continue
+					} else {
+						clearScreen()
+						fmt.Printf("The terminal displays:\n\nbash: %s: command not found\n\nType 'leave' to stop entering commands on the terminal\n\n", input)
+						continue
+					}
+				}
+			}
+			
+			
+
 			parts := strings.Fields(input)
 			if len(parts) == 0 {
 				continue
@@ -591,10 +632,13 @@ func main() {
 					player.Approach(args[0])
 
 					if !unlockComputer.Triggered {
-						if player.CurrentEntity!= nil && player.CurrentEntity.Name == "computer" {
+						if player.CurrentEntity != nil && player.CurrentEntity.Name == "computer" {
 							isAttemptingPassword = true
 					}
                 }
+				if player.CurrentEntity != nil && player.CurrentEntity.Name == "terminal" {
+					isAttemptingTerminal = true
+				}
                 
 				} else {
 					fmt.Println("Specify an entity to approach.")
@@ -630,8 +674,8 @@ func main() {
 			case computerPassword:
 				continue
 			default:
-				clearScreen()
-				fmt.Println("Unknown command:", command)
+					clearScreen()
+					fmt.Println("Unknown command:", command)
 			}
 		}
 	}
