@@ -315,7 +315,7 @@ func showCommands() {
 }
 
 func main() {
-	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape?\nOh and remember... You don't want to make Rosie grumpy! So don't do anything crazy.\n\nif at any point you feel lost, type 'commands' to display the list of all commands.\nThe command 'look' is always useful to get your bearings and see the options available to you.\nThe command 'exit' will make you quit the game at any time. Make sure you do mean to use it, or you will inadvertently lose oll of your progress!"
+	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape?\nOh and remember... You don't want to make Rosie grumpy! So don't do anything crazy.\n\nif at any point you feel lost, type 'commands' to display the list of all commands.\nThe command 'look' is always useful to get your bearings and see the options available to you.\nThe command 'exit' will make you quit the game at any time. Make sure you do mean to use it, or you will inadvertently lose all of your progress!"
 
 	introductionShown:= false
 
@@ -383,9 +383,9 @@ func main() {
 		Exits:      make(map[string]*Room),
 	}
 
-	storageRoom := Room{
-		Name:        "storage-room",
-		Description: "The room is dimly lit, with shelves lining the walls, stacked high with forgotten equipment, unused tools, and half-empty boxes. The faint smell of dust lingers in the air. In the corner, a rusty trolley leans against the wall, piled with tangled cables and discarded keyboards.",
+	terminalRoom := Room{
+		Name:        "terminal-room",
+		Description: "As you step into the terminal room, you're greeted by the soft hum of machines and the flickering glow of monitors lining the walls.\n\nThe air is charged with a sense of urgency, filled with the scent of freshly brewed coffee mingling with the faint odor of electrical components.\n\nIn the center of the room, a sleek, state-of-the-art terminal stands atop a polished wooden desk.",
 		Items:      make(map[string]*Item),
 		Entities:   make(map[string]*Entity),
 		Exits:      make(map[string]*Room),
@@ -393,8 +393,8 @@ func main() {
 
 	staffRoom.Exits["south"] = &codingLab
 	codingLab.Exits["north"] = &staffRoom
-	codingLab.Exits["east"] = &storageRoom
-	storageRoom.Exits["west"] = &codingLab
+	codingLab.Exits["east"] = &terminalRoom
+	terminalRoom.Exits["west"] = &codingLab
 
 	rosie := Entity{Name: "rosie", Description: "Ugh, what? Sorry, I can't think straight without a brew. Get me some tea, and then we'll talk...", Hidden: false}
 	kettle := Entity{Name: "kettle", Description: "You set the kettle to boil, brewing the strongest cup of tea you've ever made. A comforting aroma fills the room as the tea is now ready.\n\n(tea can now be found in the room)\n", Hidden: false}
@@ -413,6 +413,10 @@ func main() {
 	fourthPlate := Item{Name: "fourth-plate", Description: "The fourth plate of the stack.", Weight: 6, Hidden: true}
 	fifthPlate := Item{Name: "fifth-plate", Description: "The fifth plate of the stack.", Weight: 6, Hidden: true}
 	sixthPlate := Item{Name: "sixth-plate", Description: "The plate at the bottom of the stack.", Weight: 6, Hidden: true}
+	terminal := Entity{Name: "terminal", Description: "A sleek terminal sits on the desk, its screen displaying lines of code and system commands.\nThe keyboard, slightly worn, hints at frequent use.\nThis device is essential for executing tasks and accessing the building's network.\n\nEnter your commands below or type 'leave' to exit the terminal.\n\n", Hidden: true}
+	dan := Entity{Name: "dan", Description: "Congratulations on making it this far! I must say, I'm genuinely impressed. It appears I'm your final boss — muahahaha!\n...Oh, pardon my theatrics. Now, listen closely: the terminal holds the secret instructions to escape the building.\nYou only need two commands to access them. But here's the catch — you have just 10 minutes before the terminal locks, and we risk getting locked in this building for the entire night.\nTrust me, that would make Rosie very grumpy.\nLook around the building to find clues...\nWhat are you standing there for? Get to it!", Hidden: true}
+	cd := Item{Name: "cd", Description: "A compact disc with '\\secret-files' written on it in bold letters.\nIt almost seems to call out to you, hinting at hidden knowledge.", Weight: 1, Hidden: false}
+	cat := Entity{Name: "cat", Description: "On one of the chairs, a fluffy cat lounges lazily, wearing a collar with a name tag that reads 'unlock-exits-instructions'\n\nAn odd name for a cat. You get the feeling that this feline is more than it seems, possibly guarding crucial information", Hidden: false}
 
 	staffRoom.Items[tea.Name] = &tea
 	staffRoom.Items[lanyard.Name] = &lanyard
@@ -421,6 +425,8 @@ func main() {
 	staffRoom.Entities[kettle.Name] = &kettle
 	staffRoom.Entities[sofa.Name] = &sofa
 	staffRoom.Entities[dishwasher.Name] = &dishwasher
+	staffRoom.Entities[cat.Name] = &cat
+	codingLab.Items[cd.Name] = &cd
 	codingLab.Entities[computer.Name] = &computer
 	codingLab.Entities[alan.Name] = &alan
 	codingLab.Entities[agileManifesto.Name] = &agileManifesto
@@ -431,6 +437,8 @@ func main() {
 	codingLab.Items[fourthPlate.Name] = &fourthPlate
 	codingLab.Items[fifthPlate.Name] = &fifthPlate
 	codingLab.Items[sixthPlate.Name] = &sixthPlate
+	terminalRoom.Entities[terminal.Name] = &terminal
+	terminalRoom.Entities[dan.Name] = &dan
 
 	isAttemptingPassword := false
 
@@ -483,6 +491,8 @@ func main() {
 		if !dishwasherChallengeWon.Triggered {
 			if dishwasherLoaded {
 				player.TriggerEvent(dishwasherChallengeWon)
+				alan.SetDescription("Ah, so you've managed to load the dishwasher! Splendid work — consider this challenge complete.\nI could have done it myself instead of writing that clever recursive function, but where's the fun in that?\nAfter all, they pay me for my intellect, not for doing the heavy lifting!\nBut I digress. You're free to proceed to the terminal room and speak with Dan for your final challenge.\nYou're doing an excellent job; keep it up!")
+				dan.Hidden = false
 			}
 		}
 
