@@ -105,6 +105,11 @@ func (p *Player) Move(direction string) {
 	}
 }
 
+var plateOrder = []string{"first-plate", "second-plate", "third-plate", "fourth-plate", "fifth-plate", "sixth-plate"}
+var currentPlateIndex = 0
+var gameOver = false
+
+
 func (p *Player) Take(itemName string) {
 	item, ok := p.CurrentRoom.Items[itemName]
 	switch {
@@ -114,6 +119,19 @@ func (p *Player) Take(itemName string) {
 	case p.AvailableWeight < item.Weight:
 		fmt.Println("Weight limit reached! Please drop an item before taking more.")
 		return
+	case isPlate(itemName):
+		if itemName == plateOrder[currentPlateIndex] {
+			p.Inventory[item.Name] = item
+			p.ChangeCarriedWeight(item, "increase")
+			delete(p.CurrentRoom.Items, item.Name)
+			currentPlateIndex++
+
+			fmt.Printf("%s has been added to your inventory.\n", item.Name)
+		} else {
+			fmt.Println("As you attempt to grab the greasy plates without removing the ones stacked above them, they slip from your grasp and shatter, creating a chaotic mess.\n\nNow Rosie is very grumpy.")
+			gameOver = true
+		}
+		
 	default:
 		p.Inventory[item.Name] = item
 		p.ChangeCarriedWeight(item, "increase")
@@ -121,6 +139,15 @@ func (p *Player) Take(itemName string) {
 
 		fmt.Printf("%s has been added to your inventory.\n", item.Name)
 	}
+}
+
+func isPlate(itemName string) bool {
+    for _, plate := range plateOrder {
+        if itemName == plate {
+            return true
+        }
+    }
+    return false
 }
 
 func (p *Player) ChangeCarriedWeight(item *Item, operation string) {
@@ -138,6 +165,10 @@ func (p *Player) ChangeCarriedWeight(item *Item, operation string) {
 
 func (p *Player) Drop(itemName string) {
 	if item, ok := p.Inventory[itemName]; ok {
+		if isPlate(itemName) {
+			println("You can't just leave those plates lying around! It's time to load them into the dishwasher!")
+			return
+		}
 
 		delete(p.Inventory, item.Name)
 		p.ChangeCarriedWeight(item, "decrease")
@@ -286,7 +317,6 @@ func showCommands() {
 func main() {
 	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape?\nOh and remember... You don't want to make Rosie grumpy! So don't do anything crazy.\n\nif at any point you feel lost, type 'commands' to display the list of all commands.\nThe command 'look' is always useful to get your bearings and see the options available to you.\nThe command 'exit' will make you quit the game at any time. Make sure you do mean to use it, or you will inadvertently lose oll of your progress!"
 
-	gameOver := false
 	introductionShown:= false
 
 	validInteractions = []*Interaction{
