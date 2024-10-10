@@ -1,6 +1,7 @@
 package main
 
 import (
+	"academy-adventure-game/describable"
 	"academy-adventure-game/entities"
 	"bytes"
 	"fmt"
@@ -569,9 +570,9 @@ func TestUpdateDescription(t *testing.T) {
 	newDescription := "This is the second description"
 
 	//Act
-	updateDescription(room, newDescription)
-	updateDescription(item, newDescription)
-	updateDescription(entity, newDescription)
+	describable.UpdateDescription(room, newDescription)
+	describable.UpdateDescription(item, newDescription)
+	describable.UpdateDescription(entity, newDescription)
 
 	//Assert
 	if room.GetDescription() != newDescription {
