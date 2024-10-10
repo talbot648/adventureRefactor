@@ -1,6 +1,8 @@
 package main
 
 import (
+	"academy-adventure-game/entities"
+	"academy-adventure-game/interactions"
 	"bufio"
 	"fmt"
 	"os"
@@ -69,20 +71,6 @@ type Entity struct {
 	Description string
 	Hidden      bool
 }
-
-type Event struct {
-	Description string
-	Outcome     string
-	Triggered   bool
-}
-
-type Interaction struct {
-	ItemName   string
-	EntityName string
-	Event      *Event
-}
-
-var validInteractions = []*Interaction{}
 
 func (e *Entity) SetDescription(description string) {
 	e.Description = description
@@ -278,7 +266,7 @@ func (p *Player) Use(itemName string, target string) {
 	}
 	if p.CurrentEntity.Name == target {
 		if _, ok := p.Inventory[itemName]; ok {
-			for _, interaction := range validInteractions {
+			for _, interaction := range interactions.ValidInteractions {
 				if interaction.ItemName == itemName && interaction.EntityName == target {
 					p.TriggerEvent(interaction.Event)
 					p.ChangeCarriedWeight(p.Inventory[itemName], "decrease")
@@ -297,7 +285,7 @@ func (p *Player) Use(itemName string, target string) {
 	fmt.Printf("You can't use %s on %s.\n", itemName, target)
 }
 
-func (p *Player) TriggerEvent(event *Event) {
+func (p *Player) TriggerEvent(event *entities.Event) {
 	fmt.Println(event.Outcome)
 	event.Triggered = true
 }
@@ -315,13 +303,13 @@ func main() {
 
 	introductionShown := false
 
-	validInteraction()
+	interactions.ValidInteraction()
 
-	dishwasherChallengeWon := &Event{Description: "dishwasher-loaded", Outcome: "You load the dirty plates into the dishwasher and switch it on, a feeling of being used washing over you.\nThis challenge felt less like teamwork and more like being roped into someone else's mess.\nWith a sigh, you decide to head back to Alan to see if this effort has truly led you to victory...\n", Triggered: false}
+	dishwasherChallengeWon := &entities.Event{Description: "dishwasher-loaded", Outcome: "You load the dirty plates into the dishwasher and switch it on, a feeling of being used washing over you.\nThis challenge felt less like teamwork and more like being roped into someone else's mess.\nWith a sigh, you decide to head back to Alan to see if this effort has truly led you to victory...\n", Triggered: false}
 
-	grumpyRosie := &Event{Description: "rosie-is-grumpy", Outcome: "Rosie caught you in the act of swiping a lanyard from a fellow student.\nYou have made Rosie grumpy and you've lost the game.\n", Triggered: false}
+	grumpyRosie := &entities.Event{Description: "rosie-is-grumpy", Outcome: "Rosie caught you in the act of swiping a lanyard from a fellow student.\nYou have made Rosie grumpy and you've lost the game.\n", Triggered: false}
 
-	unlockComputer := &Event{Description: "computer-is-unlocked", Outcome: "You enter the password, holding your breath. Yes! The screen flickers to life.\nyou've unlocked the computer and now have full access.\n\nYou should approach Alan to find out what's next...\n", Triggered: false}
+	unlockComputer := &entities.Event{Description: "computer-is-unlocked", Outcome: "You enter the password, holding your breath. Yes! The screen flickers to life.\nyou've unlocked the computer and now have full access.\n\nYou should approach Alan to find out what's next...\n", Triggered: false}
 
 	computerPassword := "iiwsccrtc"
 
@@ -437,7 +425,7 @@ func main() {
 			desk.SetDescription("Despite the disarray, it's clear this desk sees frequent use, with just enough space left to get work done.")
 		}
 
-		for _, validInteraction := range validInteractions {
+		for _, validInteraction := range interactions.ValidInteractions {
 			if validInteraction.Event.Description == "get-your-lanyard" && validInteraction.Event.Triggered {
 				lanyard.Hidden = false
 				rosie.SetDescription("Can I help with anything else?")
@@ -445,7 +433,7 @@ func main() {
 		}
 
 		dishwasherLoaded := true
-		for _, validInteraction := range validInteractions {
+		for _, validInteraction := range interactions.ValidInteractions {
 			if strings.HasSuffix(validInteraction.ItemName, "plate") && !validInteraction.Event.Triggered {
 				dishwasherLoaded = false
 				break
@@ -633,45 +621,5 @@ func main() {
 				fmt.Println("Unknown command:", command)
 			}
 		}
-	}
-}
-
-func validInteraction() {
-	validInteractions = []*Interaction{
-		{
-			ItemName:   "tea",
-			EntityName: "rosie",
-			Event:      &Event{Description: "get-your-lanyard", Outcome: "Cheers! I needed that... by the way, where is your lanyard? I must have forgotten to give it to you.\nYou'll need that to move between rooms, here it is.\n\n(lanyard can now be found in the room).\n", Triggered: false},
-		},
-		{
-			ItemName:   "first-plate",
-			EntityName: "dishwasher",
-			Event:      &Event{Description: "first-plate-loaded", Outcome: "You loaded the first plate into the dishwasher.", Triggered: false},
-		},
-		{
-			ItemName:   "second-plate",
-			EntityName: "dishwasher",
-			Event:      &Event{Description: "second-plate-loaded", Outcome: "You loaded the second plate into the dishwasher.", Triggered: false},
-		},
-		{
-			ItemName:   "third-plate",
-			EntityName: "dishwasher",
-			Event:      &Event{Description: "third-plate-loaded", Outcome: "You loaded the third plate into the dishwasher.", Triggered: false},
-		},
-		{
-			ItemName:   "fourth-plate",
-			EntityName: "dishwasher",
-			Event:      &Event{Description: "fourth-plate-loaded", Outcome: "You loaded the fourth plate into the dishwasher.", Triggered: false},
-		},
-		{
-			ItemName:   "fifth-plate",
-			EntityName: "dishwasher",
-			Event:      &Event{Description: "fifth-plate-loaded", Outcome: "You loaded the fifth plate into the dishwasher.", Triggered: false},
-		},
-		{
-			ItemName:   "sixth-plate",
-			EntityName: "dishwasher",
-			Event:      &Event{Description: "sixth-plate-loaded", Outcome: "You loaded the sixth plate into the dishwasher.", Triggered: false},
-		},
 	}
 }
