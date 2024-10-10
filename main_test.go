@@ -2,7 +2,6 @@ package main
 
 import (
 	"academy-adventure-game/entities"
-	"academy-adventure-game/interactions"
 	"bytes"
 	"fmt"
 	"os"
@@ -11,7 +10,7 @@ import (
 )
 
 func setUpValidInteractions() {
-	interactions.ValidInteractions = []*interactions.Interaction{
+	entities.ValidInteractions = []*entities.Interaction{
 		{
 			ItemName:   "key",
 			EntityName: "door",
@@ -27,12 +26,12 @@ func setUpValidInteractions() {
 
 func TestPlayerMovement(t *testing.T) {
 	//Arrange
-	room1 := Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*Room)}
-	room2 := Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*Room)}
+	room1 := entities.Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*entities.Room)}
+	room2 := entities.Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*entities.Room)}
 	room1.Exits["north"] = &room2
 	room2.Exits["south"] = &room1
 
-	player := Player{CurrentRoom: &room1}
+	player := entities.Player{CurrentRoom: &room1}
 
 	// Act
 	player.Move("north")
@@ -45,12 +44,12 @@ func TestPlayerMovement(t *testing.T) {
 
 func TestPlayerMovementInvalidDirection(t *testing.T) {
 	//Arrange
-	room1 := Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*Room)}
-	room2 := Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*Room)}
+	room1 := entities.Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*entities.Room)}
+	room2 := entities.Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*entities.Room)}
 	room1.Exits["north"] = &room2
 	room2.Exits["south"] = &room1
 
-	player := Player{CurrentRoom: &room1}
+	player := entities.Player{CurrentRoom: &room1}
 
 	//Act
 	player.Move("east")
@@ -63,13 +62,13 @@ func TestPlayerMovementInvalidDirection(t *testing.T) {
 
 func TestTakeItem(t *testing.T) {
 	//Arrange
-	room := Room{Items: make(map[string]*Item)}
+	room := entities.Room{Items: make(map[string]*entities.Item)}
 
-	item := Item{Name: "Item", Description: "This is an item."}
+	item := entities.Item{Name: "Item", Description: "This is an item."}
 
 	room.Items[item.Name] = &item
 
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item)}
 
 	//Act
 	player.Take(item.Name)
@@ -86,14 +85,14 @@ func TestTakeItem(t *testing.T) {
 
 func TestTakeAbsentItem(t *testing.T) {
 	//Arrange
-	room1 := Room{Items: make(map[string]*Item)}
-	room2 := Room{Items: make(map[string]*Item)}
+	room1 := entities.Room{Items: make(map[string]*entities.Item)}
+	room2 := entities.Room{Items: make(map[string]*entities.Item)}
 
-	item := Item{Name: "Item", Description: "This is an item.", Weight: 10}
+	item := entities.Item{Name: "Item", Description: "This is an item.", Weight: 10}
 
 	room1.Items[item.Name] = &item
 
-	player := Player{CurrentRoom: &room2, Inventory: make(map[string]*Item), CarriedWeight: 0, AvailableWeight: 30}
+	player := entities.Player{CurrentRoom: &room2, Inventory: make(map[string]*entities.Item), CarriedWeight: 0, AvailableWeight: 30}
 
 	//Act
 	player.Take(item.Name)
@@ -106,9 +105,9 @@ func TestTakeAbsentItem(t *testing.T) {
 
 func TestTakeNonexistentItem(t *testing.T) {
 	//Arrange
-	room2 := Room{Items: make(map[string]*Item)}
+	room2 := entities.Room{Items: make(map[string]*entities.Item)}
 
-	player := Player{CurrentRoom: &room2, Inventory: make(map[string]*Item), CarriedWeight: 0, AvailableWeight: 30}
+	player := entities.Player{CurrentRoom: &room2, Inventory: make(map[string]*entities.Item), CarriedWeight: 0, AvailableWeight: 30}
 
 	//Act
 	player.Take("Item")
@@ -121,13 +120,13 @@ func TestTakeNonexistentItem(t *testing.T) {
 
 func TestTakeHiddenItem(t *testing.T) {
 	//Arrange
-	room := Room{Items: make(map[string]*Item)}
+	room := entities.Room{Items: make(map[string]*entities.Item)}
 
-	item := Item{Name: "Item", Description: "This is an item.", Weight: 10, Hidden: true}
+	item := entities.Item{Name: "Item", Description: "This is an item.", Weight: 10, Hidden: true}
 
 	room.Items[item.Name] = &item
 
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), CarriedWeight: 0, AvailableWeight: 30}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item), CarriedWeight: 0, AvailableWeight: 30}
 
 	//Act
 	player.Take(item.Name)
@@ -140,13 +139,13 @@ func TestTakeHiddenItem(t *testing.T) {
 
 func TestDropItem(t *testing.T) {
 	//Arrange
-	room := Room{Items: make(map[string]*Item)}
+	room := entities.Room{Items: make(map[string]*entities.Item)}
 
-	item := Item{Name: "Item", Description: "This is an item."}
+	item := entities.Item{Name: "Item", Description: "This is an item."}
 
 	room.Items[item.Name] = &item
 
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item)}
 
 	//Act
 	player.Take(item.Name)
@@ -164,16 +163,16 @@ func TestDropItem(t *testing.T) {
 
 func TestDropAbsentItem(t *testing.T) {
 	//Arrange
-	room1 := Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*Room), Items: make(map[string]*Item)}
-	room2 := Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*Room), Items: make(map[string]*Item)}
+	room1 := entities.Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*entities.Room), Items: make(map[string]*entities.Item)}
+	room2 := entities.Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*entities.Room), Items: make(map[string]*entities.Item)}
 	room1.Exits["north"] = &room2
 	room2.Exits["south"] = &room1
 
-	item := Item{Name: "Item", Description: "This is an item."}
+	item := entities.Item{Name: "Item", Description: "This is an item."}
 
 	room1.Items[item.Name] = &item
 
-	player := Player{CurrentRoom: &room1, Inventory: make(map[string]*Item)}
+	player := entities.Player{CurrentRoom: &room1, Inventory: make(map[string]*entities.Item)}
 
 	//Act
 	player.Move("north")
@@ -189,9 +188,9 @@ func TestDropAbsentItem(t *testing.T) {
 
 func TestDropNonexistentItem(t *testing.T) {
 	//Arrange
-	room := Room{Items: make(map[string]*Item)}
+	room := entities.Room{Items: make(map[string]*entities.Item)}
 
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item)}
 
 	//Act
 	player.Drop("Item")
@@ -207,11 +206,11 @@ func TestDropNonexistentItem(t *testing.T) {
 
 func TestShowInventory(t *testing.T) {
 	// Arrange
-	room := Room{Items: make(map[string]*Item)}
-	item := Item{Name: "Item", Description: "This is an item.", Weight: 10}
+	room := entities.Room{Items: make(map[string]*entities.Item)}
+	item := entities.Item{Name: "Item", Description: "This is an item.", Weight: 10}
 	room.Items[item.Name] = &item
 
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), AvailableWeight: 30}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item), AvailableWeight: 30}
 	player.Take(item.Name)
 
 	r, w, _ := os.Pipe()
@@ -241,9 +240,9 @@ func TestShowInventory(t *testing.T) {
 
 func TestShowInventoryIsEmpty(t *testing.T) {
 	// Arrange
-	room := Room{Items: make(map[string]*Item)}
+	room := entities.Room{Items: make(map[string]*entities.Item)}
 
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), AvailableWeight: 30}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item), AvailableWeight: 30}
 
 	r, w, _ := os.Pipe()
 	defer r.Close()
@@ -272,13 +271,13 @@ func TestShowInventoryIsEmpty(t *testing.T) {
 
 func TestShowRoom(t *testing.T) {
 	// Arrange
-	room := Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
-	entity := Entity{Name: "Entity", Description: "This is Entity"}
-	item := Item{Name: "Item", Description: "This is an item.", Weight: 10}
+	room := entities.Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*entities.Item), Entities: make(map[string]*entities.Entity)}
+	entity := entities.Entity{Name: "Entity", Description: "This is Entity"}
+	item := entities.Item{Name: "Item", Description: "This is an item.", Weight: 10}
 	room.Items[item.Name] = &item
 	room.Entities[entity.Name] = &entity
 
-	player := Player{CurrentRoom: &room}
+	player := entities.Player{CurrentRoom: &room}
 
 	r, w, _ := os.Pipe()
 	defer r.Close()
@@ -315,13 +314,13 @@ func TestShowRoom(t *testing.T) {
 
 func TestShowRoomEngagedEntity(t *testing.T) {
 	// Arrange
-	room := Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
-	entity := Entity{Name: "Entity", Description: "This is Entity"}
-	item := Item{Name: "Item", Description: "This is an item.", Weight: 10}
+	room := entities.Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*entities.Item), Entities: make(map[string]*entities.Entity)}
+	entity := entities.Entity{Name: "Entity", Description: "This is Entity"}
+	item := entities.Item{Name: "Item", Description: "This is an item.", Weight: 10}
 	room.Items[item.Name] = &item
 	room.Entities[entity.Name] = &entity
 
-	player := Player{CurrentRoom: &room, CurrentEntity: &entity}
+	player := entities.Player{CurrentRoom: &room, CurrentEntity: &entity}
 
 	r, w, _ := os.Pipe()
 	defer r.Close()
@@ -358,13 +357,13 @@ func TestShowRoomEngagedEntity(t *testing.T) {
 
 func TestShowHiddenItems(t *testing.T) {
 	// Arrange
-	room := Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
-	entity := Entity{Name: "Entity", Description: "This is Entity", Hidden: false}
-	item := Item{Name: "Item", Description: "This is an item.", Weight: 10, Hidden: true}
+	room := entities.Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*entities.Item), Entities: make(map[string]*entities.Entity)}
+	entity := entities.Entity{Name: "Entity", Description: "This is Entity", Hidden: false}
+	item := entities.Item{Name: "Item", Description: "This is an item.", Weight: 10, Hidden: true}
 	room.Items[item.Name] = &item
 	room.Entities[entity.Name] = &entity
 
-	player := Player{CurrentRoom: &room}
+	player := entities.Player{CurrentRoom: &room}
 
 	r, w, _ := os.Pipe()
 	defer r.Close()
@@ -398,13 +397,13 @@ func TestShowHiddenItems(t *testing.T) {
 
 func TestNotShowHiddenEntities(t *testing.T) {
 	// Arrange
-	room := Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
-	entity := Entity{Name: "Entity", Description: "This is Entity", Hidden: true}
-	item := Item{Name: "Item", Description: "This is an item.", Weight: 10, Hidden: false}
+	room := entities.Room{Name: "Room 1", Description: "This is room 1.", Items: make(map[string]*entities.Item), Entities: make(map[string]*entities.Entity)}
+	entity := entities.Entity{Name: "Entity", Description: "This is Entity", Hidden: true}
+	item := entities.Item{Name: "Item", Description: "This is an item.", Weight: 10, Hidden: false}
 	room.Items[item.Name] = &item
 	room.Entities[entity.Name] = &entity
 
-	player := Player{CurrentRoom: &room}
+	player := entities.Player{CurrentRoom: &room}
 
 	r, w, _ := os.Pipe()
 	defer r.Close()
@@ -440,16 +439,16 @@ func TestNotShowHiddenEntities(t *testing.T) {
 
 func TestItemWeight(t *testing.T) {
 	//Arrange
-	room := Room{Items: make(map[string]*Item)}
-	item1 := Item{Name: "Item", Weight: 5}
-	item2 := Item{Name: "Item 2", Weight: 10}
-	item3 := Item{Name: "Item 3", Weight: 15}
+	room := entities.Room{Items: make(map[string]*entities.Item)}
+	item1 := entities.Item{Name: "Item", Weight: 5}
+	item2 := entities.Item{Name: "Item 2", Weight: 10}
+	item3 := entities.Item{Name: "Item 3", Weight: 15}
 	room.Items[item1.Name] = &item1
 	room.Items[item2.Name] = &item2
 	room.Items[item3.Name] = &item3
 
 	//Act
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), AvailableWeight: 30}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item), AvailableWeight: 30}
 	player.Take(item1.Name)
 	player.Take(item2.Name)
 	player.Drop(item2.Name)
@@ -466,16 +465,16 @@ func TestItemWeight(t *testing.T) {
 
 func TestAvailableWeight(t *testing.T) {
 	//Arrange
-	room := Room{Items: make(map[string]*Item)}
-	item1 := Item{Name: "Item", Weight: 5}
-	item2 := Item{Name: "Item 2", Weight: 16}
-	item3 := Item{Name: "Item 3", Weight: 15}
+	room := entities.Room{Items: make(map[string]*entities.Item)}
+	item1 := entities.Item{Name: "Item", Weight: 5}
+	item2 := entities.Item{Name: "Item 2", Weight: 16}
+	item3 := entities.Item{Name: "Item 3", Weight: 15}
 	room.Items[item1.Name] = &item1
 	room.Items[item2.Name] = &item2
 	room.Items[item3.Name] = &item3
 
 	//Act
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), AvailableWeight: 30}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item), AvailableWeight: 30}
 	player.Take(item1.Name)
 	player.Drop(item1.Name)
 	player.Take(item2.Name)
@@ -498,10 +497,10 @@ func TestAvailableWeight(t *testing.T) {
 
 func TestApproachEntity(t *testing.T) {
 	//Arrange
-	room := Room{Name: "Room", Description: "This is a room.", Entities: make(map[string]*Entity)}
-	entity := Entity{Name: "Entity", Description: "This is an entity"}
+	room := entities.Room{Name: "Room", Description: "This is a room.", Entities: make(map[string]*entities.Entity)}
+	entity := entities.Entity{Name: "Entity", Description: "This is an entity"}
 	room.Entities[entity.Name] = &entity
-	player := Player{CurrentRoom: &room}
+	player := entities.Player{CurrentRoom: &room}
 
 	//Act
 	player.Approach(entity.Name)
@@ -517,11 +516,11 @@ func TestApproachEntity(t *testing.T) {
 
 func TestApproachAbsentEntity(t *testing.T) {
 	//Arrange
-	room1 := Room{Name: "Room 1", Entities: make(map[string]*Entity)}
-	room2 := Room{Entities: make(map[string]*Entity)}
-	entity := Entity{Name: "Entity", Description: "This is an entity"}
+	room1 := entities.Room{Name: "Room 1", Entities: make(map[string]*entities.Entity)}
+	room2 := entities.Room{Entities: make(map[string]*entities.Entity)}
+	entity := entities.Entity{Name: "Entity", Description: "This is an entity"}
 	room2.Entities[entity.Name] = &entity
-	player := Player{CurrentRoom: &room1}
+	player := entities.Player{CurrentRoom: &room1}
 
 	//Act
 	player.Approach(entity.Name)
@@ -534,8 +533,8 @@ func TestApproachAbsentEntity(t *testing.T) {
 
 func TestApproachNonexistentEntity(t *testing.T) {
 	//Arrange
-	room1 := Room{Name: "Room 1", Entities: make(map[string]*Entity)}
-	player := Player{CurrentRoom: &room1}
+	room1 := entities.Room{Name: "Room 1", Entities: make(map[string]*entities.Entity)}
+	player := entities.Player{CurrentRoom: &room1}
 
 	//Act
 	player.Approach("Entity")
@@ -548,10 +547,10 @@ func TestApproachNonexistentEntity(t *testing.T) {
 
 func TestApproachHiddenEntity(t *testing.T) {
 	//Arrange
-	room := Room{Name: "Room 1", Entities: make(map[string]*Entity)}
-	entity := Entity{Name: "Entity", Description: "This is an entity", Hidden: true}
+	room := entities.Room{Name: "Room 1", Entities: make(map[string]*entities.Entity)}
+	entity := entities.Entity{Name: "Entity", Description: "This is an entity", Hidden: true}
 	room.Entities[entity.Name] = &entity
-	player := Player{CurrentRoom: &room}
+	player := entities.Player{CurrentRoom: &room}
 
 	//Act
 	player.Approach(entity.Name)
@@ -564,9 +563,9 @@ func TestApproachHiddenEntity(t *testing.T) {
 
 func TestUpdateDescription(t *testing.T) {
 	//Arrange
-	room := &Room{Name: "Room", Description: "This is the first description"}
-	item := &Item{Name: "Item", Description: "This is the first description"}
-	entity := &Entity{Name: "Entity", Description: "This is the first description"}
+	room := &entities.Room{Name: "Room", Description: "This is the first description"}
+	item := &entities.Item{Name: "Item", Description: "This is the first description"}
+	entity := &entities.Entity{Name: "Entity", Description: "This is the first description"}
 	newDescription := "This is the second description"
 
 	//Act
@@ -588,10 +587,10 @@ func TestUpdateDescription(t *testing.T) {
 
 func TestDisengageEntity(t *testing.T) {
 	//Arrange
-	room := Room{Name: "Room", Description: "This is a room.", Entities: make(map[string]*Entity)}
-	entity := Entity{Name: "Entity", Description: "This is an entity"}
+	room := entities.Room{Name: "Room", Description: "This is a room.", Entities: make(map[string]*entities.Entity)}
+	entity := entities.Entity{Name: "Entity", Description: "This is an entity"}
 	room.Entities[entity.Name] = &entity
-	player := Player{CurrentRoom: &room}
+	player := entities.Player{CurrentRoom: &room}
 
 	//Act
 	player.Approach(entity.Name)
@@ -604,15 +603,15 @@ func TestDisengageEntity(t *testing.T) {
 
 func TestPlayerMoveDisengageEntity(t *testing.T) {
 	//Arrange
-	room1 := Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*Room), Entities: make(map[string]*Entity)}
-	room2 := Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*Room), Entities: make(map[string]*Entity)}
+	room1 := entities.Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*entities.Room), Entities: make(map[string]*entities.Entity)}
+	room2 := entities.Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*entities.Room), Entities: make(map[string]*entities.Entity)}
 
 	room1.Exits["north"] = &room2
 	room2.Exits["south"] = &room1
 
-	entity := Entity{Name: "Entity", Description: "This is an entity"}
+	entity := entities.Entity{Name: "Entity", Description: "This is an entity"}
 	room1.Entities[entity.Name] = &entity
-	player := Player{CurrentRoom: &room1, CurrentEntity: nil}
+	player := entities.Player{CurrentRoom: &room1, CurrentEntity: nil}
 
 	//Act
 	player.Approach(entity.Name)
@@ -626,14 +625,14 @@ func TestPlayerMoveDisengageEntity(t *testing.T) {
 
 func TestEngagedPlayerCannotEngageOtherEntities(t *testing.T) {
 	//Arrange
-	room := Room{Name: "Room", Description: "This is a room.", Exits: make(map[string]*Room), Entities: make(map[string]*Entity)}
+	room := entities.Room{Name: "Room", Description: "This is a room.", Exits: make(map[string]*entities.Room), Entities: make(map[string]*entities.Entity)}
 
-	entity1 := Entity{Name: "Entity", Description: "This is an entity"}
-	entity2 := Entity{Name: "Entity 2", Description: "This is an entity"}
+	entity1 := entities.Entity{Name: "Entity", Description: "This is an entity"}
+	entity2 := entities.Entity{Name: "Entity 2", Description: "This is an entity"}
 
 	room.Entities[entity1.Name] = &entity1
 	room.Entities[entity2.Name] = &entity2
-	player := Player{CurrentRoom: &room}
+	player := entities.Player{CurrentRoom: &room}
 
 	//Act
 	player.Approach(entity1.Name)
@@ -647,13 +646,13 @@ func TestEngagedPlayerCannotEngageOtherEntities(t *testing.T) {
 
 func TestShowMap(t *testing.T) {
 	//Arrange
-	room1 := Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*Room), Entities: make(map[string]*Entity)}
-	room2 := Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*Room), Entities: make(map[string]*Entity)}
+	room1 := entities.Room{Name: "Room 1", Description: "This is room 1.", Exits: make(map[string]*entities.Room), Entities: make(map[string]*entities.Entity)}
+	room2 := entities.Room{Name: "Room 2", Description: "This is room 2.", Exits: make(map[string]*entities.Room), Entities: make(map[string]*entities.Entity)}
 
 	room1.Exits["north"] = &room2
 	room2.Exits["south"] = &room1
 
-	player := Player{CurrentRoom: &room1}
+	player := entities.Player{CurrentRoom: &room1}
 
 	//Act
 	r, w, _ := os.Pipe()
@@ -683,12 +682,12 @@ func TestShowMap(t *testing.T) {
 func TestValidUseItem(t *testing.T) {
 	//Arrange
 	setUpValidInteractions()
-	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
-	key := Item{Name: "key", Weight: 1}
-	door := Entity{Name: "door"}
+	room := entities.Room{Items: make(map[string]*entities.Item), Entities: make(map[string]*entities.Entity)}
+	key := entities.Item{Name: "key", Weight: 1}
+	door := entities.Entity{Name: "door"}
 	room.Entities[door.Name] = &door
 	room.Items[key.Name] = &key
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), AvailableWeight: 30}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item), AvailableWeight: 30}
 
 	//Act
 	player.Take("key")
@@ -696,7 +695,7 @@ func TestValidUseItem(t *testing.T) {
 	player.Use("key", "door")
 
 	//Assert
-	if !interactions.ValidInteractions[0].Event.Triggered {
+	if !entities.ValidInteractions[0].Event.Triggered {
 		t.Errorf("Expected event to be true for triggered, got false")
 	}
 	if _, ok := player.Inventory["key"]; ok {
@@ -713,12 +712,12 @@ func TestValidUseItem(t *testing.T) {
 func TestInvalidUseItem(t *testing.T) {
 	//Arrange
 	setUpValidInteractions()
-	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
-	key := Item{Name: "key"}
-	plant := Entity{Name: "plant"}
+	room := entities.Room{Items: make(map[string]*entities.Item), Entities: make(map[string]*entities.Entity)}
+	key := entities.Item{Name: "key"}
+	plant := entities.Entity{Name: "plant"}
 	room.Entities[plant.Name] = &plant
 	room.Items[key.Name] = &key
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item)}
 	player.Inventory[key.Name] = &key
 
 	//Act
@@ -727,7 +726,7 @@ func TestInvalidUseItem(t *testing.T) {
 	player.Use("key", "plant")
 
 	//Assert
-	for _, validInteraction := range interactions.ValidInteractions {
+	for _, validInteraction := range entities.ValidInteractions {
 		if validInteraction.Event.Triggered {
 			t.Errorf("Expected event to be false for triggered, got true")
 		}
@@ -737,12 +736,12 @@ func TestInvalidUseItem(t *testing.T) {
 func TestUseAbsentItem(t *testing.T) {
 	//Arrange
 	setUpValidInteractions()
-	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
-	key := Item{Name: "key"}
-	door := Entity{Name: "door"}
+	room := entities.Room{Items: make(map[string]*entities.Item), Entities: make(map[string]*entities.Entity)}
+	key := entities.Item{Name: "key"}
+	door := entities.Entity{Name: "door"}
 	room.Entities[door.Name] = &door
 	room.Items[key.Name] = &key
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item)}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item)}
 
 	//Act
 
@@ -750,7 +749,7 @@ func TestUseAbsentItem(t *testing.T) {
 	player.Use("key", "door")
 
 	//Assert
-	if interactions.ValidInteractions[0].Event.Triggered {
+	if entities.ValidInteractions[0].Event.Triggered {
 		t.Errorf("Expected event to be false for triggered, got true")
 	}
 }
@@ -758,12 +757,12 @@ func TestUseAbsentItem(t *testing.T) {
 func TestUseAbsentEntity(t *testing.T) {
 	//Arrange
 	setUpValidInteractions()
-	room := Room{Items: make(map[string]*Item), Entities: make(map[string]*Entity)}
-	key := Item{Name: "key"}
-	door := Entity{Name: "door"}
+	room := entities.Room{Items: make(map[string]*entities.Item), Entities: make(map[string]*entities.Entity)}
+	key := entities.Item{Name: "key"}
+	door := entities.Entity{Name: "door"}
 	room.Entities[door.Name] = &door
 	room.Items[key.Name] = &key
-	player := Player{CurrentRoom: &room, Inventory: make(map[string]*Item), CurrentEntity: nil}
+	player := entities.Player{CurrentRoom: &room, Inventory: make(map[string]*entities.Item), CurrentEntity: nil}
 
 	//Act
 
@@ -771,7 +770,7 @@ func TestUseAbsentEntity(t *testing.T) {
 	player.Use("key", "door")
 
 	//Assert
-	if interactions.ValidInteractions[0].Event.Triggered {
+	if entities.ValidInteractions[0].Event.Triggered {
 		t.Errorf("Expected event to be false for triggered, got true")
 	}
 }
