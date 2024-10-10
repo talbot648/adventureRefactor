@@ -10,14 +10,14 @@ import (
 )
 
 func clearScreen() {
-    var cmd *exec.Cmd
-    if runtime.GOOS == "windows" {
-        cmd = exec.Command("cmd", "/c", "cls")
-    } else {
-        cmd = exec.Command("clear")
-    }
-    cmd.Stdout = os.Stdout
-    cmd.Run()
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		cmd = exec.Command("cmd", "/c", "cls")
+	} else {
+		cmd = exec.Command("clear")
+	}
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
 
 type Describable interface {
@@ -26,70 +26,70 @@ type Describable interface {
 }
 
 type Item struct {
-	Name string
+	Name        string
 	Description string
-	Weight int
-	Hidden bool
+	Weight      int
+	Hidden      bool
 }
 
 func (i *Item) SetDescription(description string) {
-    i.Description = description
+	i.Description = description
 }
 
 func (i *Item) GetDescription() string {
-    return i.Description
+	return i.Description
 }
 
 type Room struct {
-	Name string
+	Name        string
 	Description string
-	Exits map[string]*Room
-	Items map[string]*Item
-	Entities map[string]*Entity
+	Exits       map[string]*Room
+	Items       map[string]*Item
+	Entities    map[string]*Entity
 }
 
 func (r *Room) SetDescription(description string) {
-    r.Description = description
+	r.Description = description
 }
 
 func (r *Room) GetDescription() string {
-    return r.Description
+	return r.Description
 }
 
 type Player struct {
-	CurrentRoom *Room
-	Inventory   map[string]*Item
-	CurrentEntity *Entity
-	CarriedWeight int
+	CurrentRoom     *Room
+	Inventory       map[string]*Item
+	CurrentEntity   *Entity
+	CarriedWeight   int
 	AvailableWeight int
 }
 
 type Entity struct {
-	Name string
+	Name        string
 	Description string
-	Hidden bool
+	Hidden      bool
 }
 
 type Event struct {
 	Description string
-	Outcome string
-	Triggered bool
+	Outcome     string
+	Triggered   bool
 }
 
 type Interaction struct {
-	ItemName string
+	ItemName   string
 	EntityName string
-	Event *Event
+	Event      *Event
 }
 
 var validInteractions = []*Interaction{}
 
 func (e *Entity) SetDescription(description string) {
-    e.Description = description
+	e.Description = description
 }
 
 func (e *Entity) GetDescription() string {
-    return e.Description
+	return e.Description
 }
 
 func (p *Player) Move(direction string) {
@@ -108,7 +108,6 @@ func (p *Player) Move(direction string) {
 var plateOrder = []string{"first-plate", "second-plate", "third-plate", "fourth-plate", "fifth-plate", "sixth-plate"}
 var currentPlateIndex = 0
 var gameOver = false
-
 
 func (p *Player) Take(itemName string) {
 	item, ok := p.CurrentRoom.Items[itemName]
@@ -131,7 +130,7 @@ func (p *Player) Take(itemName string) {
 			fmt.Println("As you attempt to grab the greasy plates without removing the ones stacked above them, they slip from your grasp and shatter, creating a chaotic mess.\n\nNow Rosie is very grumpy.")
 			gameOver = true
 		}
-		
+
 	default:
 		p.Inventory[item.Name] = item
 		p.ChangeCarriedWeight(item, "increase")
@@ -142,12 +141,12 @@ func (p *Player) Take(itemName string) {
 }
 
 func isPlate(itemName string) bool {
-    for _, plate := range plateOrder {
-        if itemName == plate {
-            return true
-        }
-    }
-    return false
+	for _, plate := range plateOrder {
+		if itemName == plate {
+			return true
+		}
+	}
+	return false
 }
 
 func (p *Player) ChangeCarriedWeight(item *Item, operation string) {
@@ -192,66 +191,63 @@ func (p *Player) ShowInventory() {
 }
 
 func (p *Player) ShowRoom() {
-    fmt.Printf("You are in %s\n\n%s\n", p.CurrentRoom.Name, p.CurrentRoom.Description)
+	fmt.Printf("You are in %s\n\n%s\n", p.CurrentRoom.Name, p.CurrentRoom.Description)
 
 	if p.EntitiesArePresent() {
-			fmt.Println("\nYou can approach:")
-			for _, entity := range p.CurrentRoom.Entities {
-				switch {
-				case p.CurrentEntity != nil:
-					if entity.Name == p.CurrentEntity.Name {
-						fmt.Printf("- %s (currently approached)\n", entity.Name)
-					} else if !entity.Hidden{
-						fmt.Printf("- %s\n", entity.Name)
-					}
-				default:
-					if !entity.Hidden{
-						fmt.Printf("- %s\n", entity.Name)
-					}
+		fmt.Println("\nYou can approach:")
+		for _, entity := range p.CurrentRoom.Entities {
+			switch {
+			case p.CurrentEntity != nil:
+				if entity.Name == p.CurrentEntity.Name {
+					fmt.Printf("- %s (currently approached)\n", entity.Name)
+				} else if !entity.Hidden {
+					fmt.Printf("- %s\n", entity.Name)
 				}
-			}
-		}
-		
-	if p.ItemsArePresent() {
-			fmt.Println("\nThe room contains:")
-			for itemName, item := range p.CurrentRoom.Items {
-				if !item.Hidden {
-					fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
+			default:
+				if !entity.Hidden {
+					fmt.Printf("- %s\n", entity.Name)
 				}
 			}
 		}
 	}
 
-	
-
-func (p *Player) ItemsArePresent() bool {
-	if len(p.CurrentRoom.Items) != 0 {
-	for _, item := range p.CurrentRoom.Items {
-		if !item.Hidden {
-			return true
+	if p.ItemsArePresent() {
+		fmt.Println("\nThe room contains:")
+		for itemName, item := range p.CurrentRoom.Items {
+			if !item.Hidden {
+				fmt.Printf("- %s: %s Weight: %d\n", itemName, item.Description, item.Weight)
+			}
 		}
 	}
 }
+
+func (p *Player) ItemsArePresent() bool {
+	if len(p.CurrentRoom.Items) != 0 {
+		for _, item := range p.CurrentRoom.Items {
+			if !item.Hidden {
+				return true
+			}
+		}
+	}
 	return false
 }
 
 func (p *Player) EntitiesArePresent() bool {
 	if len(p.CurrentRoom.Entities) != 0 {
-	for _, entity := range p.CurrentRoom.Entities {
-		if !entity.Hidden {
-			return true
+		for _, entity := range p.CurrentRoom.Entities {
+			if !entity.Hidden {
+				return true
+			}
 		}
 	}
-}
 	return false
 }
-
 
 func (p *Player) Approach(entityName string) {
 	if p.CurrentEntity != nil {
 		p.CurrentEntity = nil
 	}
-	if entity, ok := p.CurrentRoom.Entities[entityName]; ok && !entity.Hidden{
+	if entity, ok := p.CurrentRoom.Entities[entityName]; ok && !entity.Hidden {
 
 		p.CurrentEntity = entity
 		fmt.Println(entity.Description)
@@ -279,17 +275,17 @@ func (p *Player) Use(itemName string, target string) {
 	if p.CurrentEntity == nil {
 		fmt.Println("Approach to use an item.")
 		return
-	}	
+	}
 	if p.CurrentEntity.Name == target {
 		if _, ok := p.Inventory[itemName]; ok {
-				for _, interaction := range validInteractions {
-					if interaction.ItemName == itemName && interaction.EntityName == target {
-						p.TriggerEvent(interaction.Event)
-						p.ChangeCarriedWeight(p.Inventory[itemName], "decrease")
-						delete(p.Inventory, itemName)
-						return
-					}
+			for _, interaction := range validInteractions {
+				if interaction.ItemName == itemName && interaction.EntityName == target {
+					p.TriggerEvent(interaction.Event)
+					p.ChangeCarriedWeight(p.Inventory[itemName], "decrease")
+					delete(p.Inventory, itemName)
+					return
 				}
+			}
 		} else {
 			fmt.Printf("You don't have %s.\n", itemName)
 			return
@@ -317,7 +313,7 @@ func showCommands() {
 func main() {
 	introduction := "It's the last day at the Academy, and you and your fellow graduates are ready to take on the final hack-day challenge.\nHowever, this time, it's different. Alan and Dan, your instructors, have prepared something more intense than ever before — a true test of your problem-solving and coding skills.\nThe doors to the academy are locked, the windows sealed. The only way out is to find and solve a series of riddles that lead to the terminal in a hidden room.\nThe challenge? Crack the code on the terminal to unlock the doors. But it's not that simple.\nYou'll need to gather items, approach Alan and Dan for cryptic tips, and outsmart the obstacles they've laid out for you.\nAs the tension rises, only your wits, teamwork, and knowledge can guide you to freedom.\nAre you ready to escape?\nOh and remember... You don't want to make Rosie grumpy! So don't do anything crazy.\n\nif at any point you feel lost, type 'commands' to display the list of all commands.\nThe command 'look' is always useful to get your bearings and see the options available to you.\nThe command 'exit' will make you quit the game at any time. Make sure you do mean to use it, or you will inadvertently lose all of your progress!"
 
-	introductionShown:= false
+	introductionShown := false
 
 	validInteractions = []*Interaction{
 		{
@@ -326,34 +322,34 @@ func main() {
 			Event:      &Event{Description: "get-your-lanyard", Outcome: "Cheers! I needed that... by the way, where is your lanyard? I must have forgotten to give it to you.\nYou'll need that to move between rooms, here it is.\n\n(lanyard can now be found in the room).\n", Triggered: false},
 		},
 		{
-			ItemName: "first-plate",
+			ItemName:   "first-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "first-plate-loaded", Outcome: "You loaded the first plate into the dishwasher.", Triggered: false},
+			Event:      &Event{Description: "first-plate-loaded", Outcome: "You loaded the first plate into the dishwasher.", Triggered: false},
 		},
 		{
-			ItemName: "second-plate",
+			ItemName:   "second-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "second-plate-loaded", Outcome: "You loaded the second plate into the dishwasher.", Triggered: false},
+			Event:      &Event{Description: "second-plate-loaded", Outcome: "You loaded the second plate into the dishwasher.", Triggered: false},
 		},
 		{
-			ItemName: "third-plate",
+			ItemName:   "third-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "third-plate-loaded", Outcome: "You loaded the third plate into the dishwasher.", Triggered: false},
+			Event:      &Event{Description: "third-plate-loaded", Outcome: "You loaded the third plate into the dishwasher.", Triggered: false},
 		},
 		{
-			ItemName: "fourth-plate",
+			ItemName:   "fourth-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "fourth-plate-loaded", Outcome: "You loaded the fourth plate into the dishwasher.", Triggered: false},
+			Event:      &Event{Description: "fourth-plate-loaded", Outcome: "You loaded the fourth plate into the dishwasher.", Triggered: false},
 		},
 		{
-			ItemName: "fifth-plate",
+			ItemName:   "fifth-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "fifth-plate-loaded", Outcome: "You loaded the fifth plate into the dishwasher.", Triggered: false},
+			Event:      &Event{Description: "fifth-plate-loaded", Outcome: "You loaded the fifth plate into the dishwasher.", Triggered: false},
 		},
 		{
-			ItemName: "sixth-plate",
+			ItemName:   "sixth-plate",
 			EntityName: "dishwasher",
-			Event: &Event{Description: "sixth-plate-loaded", Outcome: "You loaded the sixth plate into the dishwasher.", Triggered: false},
+			Event:      &Event{Description: "sixth-plate-loaded", Outcome: "You loaded the sixth plate into the dishwasher.", Triggered: false},
 		},
 	}
 
@@ -370,25 +366,25 @@ func main() {
 	staffRoom := Room{
 		Name:        "break-room",
 		Description: "A cozy lounge designed for both academy students and tutors, offering a welcoming space to unwind and socialise.\nComfortable seating invites you to relax, while the warm ambiance encourages lively conversations and friendly exchanges.",
-		Items:      make(map[string]*Item),
-		Entities:   make(map[string]*Entity),
-		Exits:      make(map[string]*Room),
+		Items:       make(map[string]*Item),
+		Entities:    make(map[string]*Entity),
+		Exits:       make(map[string]*Room),
 	}
 
 	codingLab := Room{
 		Name:        "coding-lab",
 		Description: "A bright, tech-filled room with sleek workstations, whiteboards, and collaborative spaces.\nThe air buzzes with creativity as students code, share ideas, and tackle challenges together.",
-		Items:      make(map[string]*Item),
-		Entities:   make(map[string]*Entity),
-		Exits:      make(map[string]*Room),
+		Items:       make(map[string]*Item),
+		Entities:    make(map[string]*Entity),
+		Exits:       make(map[string]*Room),
 	}
 
 	terminalRoom := Room{
 		Name:        "terminal-room",
 		Description: "As you step into the terminal room, you're greeted by the soft hum of machines and the flickering glow of monitors lining the walls.\n\nThe air is charged with a sense of urgency, filled with the scent of freshly brewed coffee mingling with the faint odor of electrical components.\n\nIn the center of the room, a sleek, state-of-the-art terminal stands atop a polished wooden desk.",
-		Items:      make(map[string]*Item),
-		Entities:   make(map[string]*Entity),
-		Exits:      make(map[string]*Room),
+		Items:       make(map[string]*Item),
+		Entities:    make(map[string]*Entity),
+		Exits:       make(map[string]*Room),
 	}
 
 	staffRoom.Exits["south"] = &codingLab
@@ -464,7 +460,7 @@ func main() {
 
 		if player.CurrentEntity != nil && player.CurrentEntity.Name == "kettle" {
 			tea.Hidden = false
-			kettle.SetDescription("A kettle — essential for survival, impossible to function without one nearby.");
+			kettle.SetDescription("A kettle — essential for survival, impossible to function without one nearby.")
 		}
 
 		if player.CurrentEntity != nil && player.CurrentEntity.Name == "desk" {
@@ -519,7 +515,6 @@ func main() {
 
 		fmt.Print("Enter command: ")
 
-
 		if scanner.Scan() {
 			input := scanner.Text()
 			input = strings.TrimSpace(input)
@@ -531,10 +526,8 @@ func main() {
 				break
 			}
 
-			
-
 			if isAttemptingPassword {
-				if remainingPasswordAttempts == 1 && input != computerPassword{
+				if remainingPasswordAttempts == 1 && input != computerPassword {
 					clearScreen()
 					fmt.Println("Alan's computer is locked, halting your progress in the challenge. To top it off, you've made Rosie grumpy, as she'll now have to take the computer to IT.\n\nThank you for playing!")
 					break
@@ -549,7 +542,7 @@ func main() {
 					dishwasher.Hidden = false
 				} else if input == "leave" {
 					isAttemptingPassword = false
-					} else {
+				} else {
 					remainingPasswordAttempts--
 					clearScreen()
 					fmt.Printf("Incorrect password. Try again, or type 'leave' to stop entering the password.\n\nRemaining attempts: %d\n\n", remainingPasswordAttempts)
@@ -565,7 +558,7 @@ func main() {
 					player.Leave()
 					continue
 				}
-			
+
 				if !IsFirstCommand {
 					if input == "cd /secret-files" {
 						clearScreen()
@@ -591,8 +584,6 @@ func main() {
 					}
 				}
 			}
-			
-			
 
 			parts := strings.Fields(input)
 			if len(parts) == 0 {
@@ -634,12 +625,12 @@ func main() {
 					if !unlockComputer.Triggered {
 						if player.CurrentEntity != nil && player.CurrentEntity.Name == "computer" {
 							isAttemptingPassword = true
+						}
 					}
-                }
-				if player.CurrentEntity != nil && player.CurrentEntity.Name == "terminal" {
-					isAttemptingTerminal = true
-				}
-                
+					if player.CurrentEntity != nil && player.CurrentEntity.Name == "terminal" {
+						isAttemptingTerminal = true
+					}
+
 				} else {
 					fmt.Println("Specify an entity to approach.")
 				}
@@ -674,10 +665,9 @@ func main() {
 			case computerPassword:
 				continue
 			default:
-					clearScreen()
-					fmt.Println("Unknown command:", command)
+				clearScreen()
+				fmt.Println("Unknown command:", command)
 			}
 		}
 	}
 }
-
